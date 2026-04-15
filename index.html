@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buzzer Quizzz</title>
+<title>مسابقة البازر ⚡</title>
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1070,9 +1070,10 @@ select option{background:#fff;color:var(--ink)}
    GOLDEN QUESTION
 ══════════════════════════════════ */
 #golden-overlay{
-  position:fixed;inset:0;z-index:600;
+  position:fixed;inset:0;z-index:1100;
   display:none;align-items:center;justify-content:center;
   padding:1.5rem;
+  pointer-events:all;
 }
 #golden-overlay.visible{display:flex}
 .golden-bg{
@@ -1123,7 +1124,7 @@ select option{background:#fff;color:var(--ink)}
 .golden-bar-fill{
   height:100%;background:linear-gradient(90deg,#ffb800,#ff8c00);
   border-radius:2px;
-  animation:warnBarShrink 3s linear forwards;
+  animation:warnBarShrink 5s linear forwards;
 }
 
 /* Golden question glow on q-box */
@@ -2129,13 +2130,31 @@ const SUBJECTS={
   arabic:{name:"لغة عربية",icon:"✍️",color:"#fbbf24"}
 };
 
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-const COLORS=["#4f8ef7","#34d399","#f5c842","#fb923c","#a78bfa","#f472b6","#60cdff","#f87171"];
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
+// Hard questions used for golden rounds (×2 score)
+const HARD_Q=[
+  {q:"ما هو العنصر الكيميائي الأثقل الذي يمكن تصنيعه بشكل مصطنع فقط؟",a:["أوغانيسون","يورانيوم","بلوتونيوم","الرادون"],c:0,subject:'science'},
+  {q:"كم عدد رسائل القرآن الكريم المقطعة (الحروف المقطعة) في بداية السور؟",a:["14","18","10","22"],c:0,subject:'islam'},
+  {q:"ما هو البلد الذي يمتلك أكبر عدد من الجزر في العالم؟",a:["السويد","النرويج","الفلبين","إندونيسيا"],c:0,subject:'geo'},
+  {q:"من هو مخترع شبكة الإنترنت العالمية (WWW)؟",a:["تيم برنرز-لي","بيل غيتس","ستيف جوبز","فينت سيرف"],c:0,subject:'tech'},
+  {q:"ما هو الفيلم الذي فاز بأكبر عدد من جوائز الأوسكار في تاريخ المهرجان؟",a:["تيتانيك وعودة الملك وبن هور (11 جائزة لكل)","حرب النجوم","الأب الروحي","شيندلر قائمة"],c:0,subject:'cinema'},
+  {q:"ما هي نسبة الذهب في سبيكة الذهب عيار 18؟",a:["75%","90%","58.5%","99.9%"],c:0,subject:'science'},
+  {q:"من هو أول خليفة إسلامي لم يكن من قريش؟",a:["المعتصم بالله","عمر بن الخطاب","علي بن أبي طالب","معاوية"],c:0,subject:'islam'},
+  {q:"في أي عام اكتُشف بروتون؟",a:["1919","1932","1897","1911"],c:0,subject:'science'},
+  {q:"ما هي أطول محيط قاري في العالم؟",a:["المحيط الهادئ له أطول ساحل: أمريكا الجنوبية","المحيط الأطلسي","المحيط الهندي","المحيط المتجمد"],c:0,subject:'geo'},
+  {q:"ما هو اسم العملية الرياضية التي يُستخدم فيها مشتق دالة لإيجاد جذورها؟",a:["طريقة نيوتن-رافسون","التكامل العددي","قاعدة كرامر","مبرهنة رولي"],c:0,subject:'science'},
+  {q:"من كتب رواية 'مئة عام من العزلة'؟",a:["غابرييل غارسيا ماركيز","إيزابيل الليندي","خورخي لويس بورخيس","ماريو بارغاس يوسا"],c:0,subject:'culture'},
+  {q:"ما هي اللغة التي تحتوي على أكبر عدد من الكلمات في قاموسها؟",a:["الإنجليزية","العربية","الصينية","الفرنسية"],c:0,subject:'arabic'},
+  {q:"كم عدد الشركاء المؤسسين لمنظمة أوبك عند تأسيسها عام 1960؟",a:["5","7","3","9"],c:0,subject:'culture'},
+  {q:"ما هو البروتوكول الذي يُستخدم لنقل البريد الإلكتروني على الإنترنت؟",a:["SMTP","HTTP","FTP","TCP"],c:0,subject:'tech'},
+  {q:"من هو اللاعب الوحيد الذي فاز بكأس العالم لاعباً ومدرباً؟",a:["ديديه ديشان","فرانز بيكنباور","يوهان كرويف","زيدان"],c:0,subject:'sport'},
+  {q:"ما هو أصغر عدد أولي أكبر من ألف؟",a:["1009","1001","1003","1007"],c:0,subject:'science'},
+  {q:"في أي مدينة تأسست منظمة الأمم المتحدة؟",a:["سان فرانسيسكو","نيويورك","جنيف","لندن"],c:0,subject:'culture'},
+  {q:"ما هو أعمق بحيرة في العالم؟",a:["بايكال","تنجانيقا","سوبيريور","كاسبيان"],c:0,subject:'geo'},
+  {q:"من هو مؤلف سيمفونية القدر (الخامسة)؟",a:["بيتهوفن","موزارت","باخ","شوبان"],c:0,subject:'culture'},
+  {q:"ما هو الجهاز الذي اخترعه نيكولا تسلا وأثار جدلاً واسعاً؟",a:["محول تسلا (Magnifying Transmitter)","الراديو","المصباح الكهربائي","الهاتف"],c:0,subject:'tech'}
+];
+
+
 let G={
   myId:null, myName:'',
   roomId:null, isHost:false,
@@ -2261,6 +2280,12 @@ function createRoom(){
   G.roomId=genCode(); G.isHost=true;
   G.settings={goal:_pillVals.goal||10, buzzTime:_pillVals.buzz||10};
   G.questions=buildLocalPool();
+  // Replace every 10th question (index 9, 19, 29...) with a hard question
+  const shuffledHard=shuffle([...HARD_Q]);
+  let hardIdx=0;
+  for(let i=9; i<G.questions.length; i+=10){
+    if(hardIdx<shuffledHard.length) G.questions[i]=shuffledHard[hardIdx++];
+  }
 
   // Store questions as numbered keys (Firebase-safe, preserves order)
   const qObj={};
@@ -2535,8 +2560,14 @@ function handleRoomUpdate(room){
     document.getElementById('qscore-overlay').style.display='none';
     loadQuestionUI(cur);
     if(G.isHost){
-      startHostBuzzTimer(cur);
-      scheduleBots(cur);
+      const golden=(cur+1)%10===0;
+      if(golden){
+        // Delay game start by 5s — splash shows for all clients via ev:'golden'
+        setTimeout(()=>{ startHostBuzzTimer(cur); scheduleBots(cur); }, 5000);
+      } else {
+        startHostBuzzTimer(cur);
+        scheduleBots(cur);
+      }
     }
     renderScoreboard(G.players,null,G.settings,{},[]); 
     updateMyScoreHeader();
@@ -2763,14 +2794,17 @@ function isGoldenQuestion(cur){ return (cur+1)%10===0; }
 
 function showGoldenOverlay(){
   const ov=document.getElementById('golden-overlay');
-  ov.classList.add('visible');
+  // Reset bar animation
   const bar=ov.querySelector('.golden-bar-fill');
-  const newBar=bar.cloneNode(true);
-  bar.parentNode.replaceChild(newBar,bar);
+  if(bar){const nb=bar.cloneNode(true);bar.parentNode.replaceChild(nb,bar);}
+  ov.classList.add('visible');
   playSound('win');
-  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-  setTimeout(()=>ov.classList.remove('visible'), 3000);
+  if(navigator.vibrate) navigator.vibrate([100,50,100,50,300]);
+  // Auto-hide after 5s
+  clearTimeout(_goldenTimer);
+  _goldenTimer=setTimeout(()=>ov.classList.remove('visible'), 5000);
 }
+let _goldenTimer=null;
 
 function loadQuestionUI(cur){
   // If questions not loaded yet, fetch from Firebase first
@@ -2796,8 +2830,12 @@ function loadQuestionUI(cur){
   const isGolden=(cur+1)%10===0;
   document.getElementById('g-qnum').className=isGolden?'g-qnum-badge golden':'g-qnum-badge';
   document.getElementById('g-question').classList.toggle('golden',isGolden);
-  // Show golden splash after a brief delay (so closeAllOverlays doesn't wipe it)
-  if(isGolden) setTimeout(()=>showGoldenOverlay(), 100);
+  if(isGolden){
+    // Fire event so ALL clients show the splash simultaneously
+    if(G.isHost) fbUpdate({'ev':{type:'golden',cur:cur,ts:fbTs()}});
+    // Delay buzz timer by 5s so players have time to see the splash
+    // (startHostBuzzTimer is called after loadQuestionUI returns, so we delay it)
+  }
   const subj=SUBJECTS[q.subject];
   document.getElementById('g-subj').textContent=subj?`${subj.icon} ${subj.name}`:'';
   document.getElementById('g-question').textContent=q.q;
@@ -3425,6 +3463,14 @@ function handleRoomEvents(ev){
     });
   } else if(t==='timeout'){
     playSound('timeout');
+  } else if(t==='golden'){
+    // Show golden splash on ALL clients simultaneously
+    showGoldenOverlay();
+    // Delay the host buzz timer by 5s so question starts after splash
+    if(G.isHost){
+      clearTimeout(_hostTimer);
+      setTimeout(()=>startHostBuzzTimer(ev.cur??G.cur), 5000);
+    }
   }
 }
 
