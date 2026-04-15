@@ -2278,6 +2278,7 @@ function createRoom(){
     ev:null
   }).then(()=>{
     DB.ref(`rooms/${G.roomId}/players/${G.myId}/connected`).onDisconnect().set(false);
+    G.questions=[]; // Reset so listenRoom reads back from Firebase — same order for everyone
     _setBtnLoading('btn-create-room',false,'✨ Create Room');
     hideFlow();
     openLobby();
@@ -2316,7 +2317,7 @@ async function joinRoom(){
 
     G.settings=room.settings||G.settings;
     G.selSubjects=room.subjects||G.selSubjects;
-    // Load questions from Firebase (host stored them as q0,q1,...,_n)
+    // Load questions from Firebase — same order for everyone
     if(room.questions && room.questions._n){
       const n=room.questions._n;
       const qs=[];
@@ -2326,8 +2327,7 @@ async function joinRoom(){
       }
       if(qs.length>0) G.questions=qs;
     }
-    // Fallback: build locally if Firebase questions not available
-    if(G.questions.length===0) G.questions=buildLocalPool();
+    // Don't fallback to buildLocalPool() — that gives different order per client!
 
     _setBtnLoading('btn-join-room',false,'Join Now 🚀');
     hideFlow();
@@ -2421,8 +2421,8 @@ function handleRoomUpdate(room){
   G.isHost=(room.host===G.myId);
   G.players=room.players||{};
   G.settings=room.settings||G.settings;
-  // Load questions from Firebase when not yet loaded (guests, reconnectors)
-  if(G.questions.length===0 && room.questions && room.questions._n){
+  // Always sync questions from Firebase — single source of truth for ALL clients
+  if(room.questions && room.questions._n){
     const n=room.questions._n;
     const qs=[];
     for(let i=0;i<n;i++){
@@ -2501,11 +2501,8 @@ function handleRoomUpdate(room){
     _lastStatus='playing';
     _prevScores={};
     Object.keys(G.players).forEach(id=>{ _prevScores[id]=0; });
-    // ALWAYS build questions from local pool — guaranteed to work
-    G.questions=buildLocalPool();
     show('s-game');
     closeAllOverlays();
-    // Force load question immediately — don't wait for cur check below
     _lastCur=-1;
   }
 
@@ -2749,11 +2746,20 @@ function showGoldenOverlay(){
 }
 
 function loadQuestionUI(cur){
-  // Always try to get question locally first
+  // If questions not loaded yet, fetch from Firebase first
   if(!G.questions||G.questions.length===0){
-    G.questions=buildLocalPool();
+    DB.ref(`rooms/${G.roomId}/questions`).once('value').then(snap=>{
+      const raw=snap.val();
+      if(raw&&raw._n){
+        const n=raw._n,qs=[];
+        for(let i=0;i<n;i++){const qd=raw['q'+i];if(qd)qs.push({q:qd.q,a:qd.a,c:qd.c,subject:qd.s});}
+        if(qs.length>0){G.questions=qs;loadQuestionUI(cur);}
+      }
+    });
+    document.getElementById('g-question').textContent='Loading...';
+    return;
   }
-  let q=G.questions[cur]||G.questions[cur%G.questions.length]||G.questions[0];
+  let q=G.questions[cur];
   if(!q){
     document.getElementById('g-question').textContent='Error loading question';
     return;
@@ -3287,11 +3293,16 @@ function hostRestart(){
   document.getElementById('win-overlay').style.display='none';
   stopConfetti();
   G.usedLocalIds=new Set();
-  G.questions=buildLocalPool();
+  const newQ=buildLocalPool();
+  G.questions=newQ;
   _botsScheduled={};
+  // Store as qObj — same format as createRoom
+  const qObj={};
+  newQ.forEach((q,i)=>{ qObj['q'+i]={q:q.q,a:q.a,c:q.c,s:q.subject}; });
+  qObj._n=newQ.length;
   const updates={
     status:'lobby', cur:0, winner:null,
-    questions:G.questions.map(q=>({q:q.q,a:q.a,c:q.c,subject:q.subject})),
+    questions:qObj,
     subjects:G.selSubjects,
     bs:{buzzer:null,phase:'buzz',qAttempts:{},blocked:[]},
     ev:null
