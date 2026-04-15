@@ -2154,6 +2154,7 @@ const HARD_Q=[
   {q:"ما هو الجهاز الذي اخترعه نيكولا تسلا وأثار جدلاً واسعاً؟",a:["محول تسلا (Magnifying Transmitter)","الراديو","المصباح الكهربائي","الهاتف"],c:0,subject:'tech'}
 ];
 
+const COLORS=["#4f8ef7","#34d399","#f5c842","#fb923c","#a78bfa","#f472b6","#60cdff","#f87171"];
 
 let G={
   myId:null, myName:'',
@@ -2893,6 +2894,9 @@ function showAnswerPhase(buzzer, qAttempts, blocked){
   if(isMe){
     setPhase('answer','You buzzed! Answer in 10 seconds ⏱');
     document.getElementById('answering-overlay').classList.remove('visible');
+    // Hide the ring timer — progress bar is enough
+    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
+    if(ringWrap) ringWrap.style.display='none';
     const q=G.questions[G.cur];
     const shuffled=shuffle(q.a.map((ans,i)=>({ans,isCorrect:i===q.c})));
     document.getElementById('g-ans-opts').innerHTML=shuffled.map(opt=>
@@ -2900,7 +2904,7 @@ function showAnswerPhase(buzzer, qAttempts, blocked){
     ).join('');
     document.getElementById('g-ans-opts').style.display='grid';
     document.getElementById('g-wait-ans').style.display='none';
-    startProgressBar(10,'answer'); startRingTimer(10); startTick(10);
+    startProgressBar(10,'answer'); startTick(10);
   } else {
     setPhase('answer',`${buzzerPlayer?.name||'?'} buzzed! ⏳`);
     document.getElementById('g-ans-opts').style.display='none';
