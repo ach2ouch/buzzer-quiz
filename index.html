@@ -1388,16 +1388,6 @@ select option{background:#fff;color:var(--ink)}
     <div class="attempt-label" id="g-my-attempts" style="text-align:center;font-size:12px;font-weight:600;color:var(--ink2)"></div>
   </div>
   <div id="g-answer-area" style="display:none">
-    <div style="display:flex;justify-content:center;margin-bottom:.75rem">
-      <div style="position:relative;width:60px;height:60px">
-        <svg width="60" height="60" viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(26,10,0,.08)" stroke-width="5"/>
-          <circle id="g-cring-arc" cx="30" cy="30" r="26" fill="none" stroke="var(--violet)" stroke-width="5"
-            stroke-dasharray="163.4" stroke-dashoffset="0" stroke-linecap="round"/>
-        </svg>
-        <div id="g-cring-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--violet);font-family:var(--fe)">10</div>
-      </div>
-    </div>
     <div class="ans-opts" id="g-ans-opts"></div>
     <div class="waiting-ans" id="g-wait-ans" style="display:none">
       <span>⏳ <span id="g-buzzer-name" style="color:var(--violet);font-weight:700"></span> is answering...</span>
@@ -2623,10 +2613,7 @@ function handleRoomUpdate(room){
     document.getElementById('g-answer-area').style.display='block';
     document.getElementById('g-ans-opts').style.display='none';
     document.getElementById('g-wait-ans').style.display='none';
-    // Hide the ring timer
-    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
-    if(ringWrap) ringWrap.style.display='none';
-    revealCorrectAnswerUI(cur);
+    // Hide the ring timer    revealCorrectAnswerUI(cur);
 
   } else if(phase==='scoreboard'){
     stopAllTimers();
@@ -2703,7 +2690,7 @@ function showCountdown(countdownStart){
    CLOSE ALL OVERLAYS HELPER
 ═══════════════════════════════════════════ */
 function closeAllOverlays(){
-  ['qscore-overlay','answering-overlay','golden-overlay'].forEach(id=>{
+  ['qscore-overlay','answering-overlay'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){ el.style.display='none'; el.classList&&el.classList.remove('visible'); }
   });
@@ -2764,9 +2751,7 @@ function stopBuzzTimer(){
   if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null;}
 }
 
-function stopRingTimer(){
-  if(_ringInterval){clearInterval(_ringInterval);_ringInterval=null;}
-}
+function stopRingTimer(){ /* ring removed */ }
 
 function stopOverlayTimer(){
   if(_ovTimerInterval){clearInterval(_ovTimerInterval);_ovTimerInterval=null;}
@@ -2827,15 +2812,14 @@ function loadQuestionUI(cur){
     return;
   }
   document.getElementById('g-qnum').textContent=`Q${cur+1}`;
-  // Golden question every 10th (Q10, Q20...)
   const isGolden=(cur+1)%10===0;
   document.getElementById('g-qnum').className=isGolden?'g-qnum-badge golden':'g-qnum-badge';
   document.getElementById('g-question').classList.toggle('golden',isGolden);
   if(isGolden){
-    // Fire event so ALL clients show the splash simultaneously
+    // Show splash directly on ALL clients — no Firebase event needed
+    // Use setTimeout so it fires AFTER closeAllOverlays() has finished
+    setTimeout(()=>showGoldenOverlay(), 50);
     if(G.isHost) fbUpdate({'ev':{type:'golden',cur:cur,ts:fbTs()}});
-    // Delay buzz timer by 5s so players have time to see the splash
-    // (startHostBuzzTimer is called after loadQuestionUI returns, so we delay it)
   }
   const subj=SUBJECTS[q.subject];
   document.getElementById('g-subj').textContent=subj?`${subj.icon} ${subj.name}`:'';
@@ -2845,15 +2829,24 @@ function loadQuestionUI(cur){
   document.getElementById('g-correct-reveal').style.display='none';
   document.getElementById('answering-overlay').classList.remove('visible');
   document.getElementById('qscore-overlay').style.display='none';
-  // Reset ring timer wrapper visibility (may have been hidden during timeout_reveal)
-  const ringWrap=document.querySelector('#g-answer-area > div:first-child');
-  if(ringWrap) ringWrap.style.display='';
   const bzBtn=document.getElementById('g-buzzer');
-  bzBtn.disabled=false; bzBtn.className='buzzer-btn';
-  setPhase('buzz','Press the Buzzer! 🔔');
+  if(isGolden){
+    // Lock buzzer during 5s splash
+    bzBtn.disabled=true; bzBtn.className='buzzer-btn locked';
+    setPhase('buzz','⭐ Golden Question! Get ready...');
+    setTimeout(()=>{
+      bzBtn.disabled=false; bzBtn.className='buzzer-btn';
+      setPhase('buzz','Press the Buzzer! 🔔');
+      startProgressBar(G.settings?.buzzTime||10,'buzz');
+      startTick(G.settings?.buzzTime||10);
+    }, 5000);
+  } else {
+    bzBtn.disabled=false; bzBtn.className='buzzer-btn';
+    setPhase('buzz','Press the Buzzer! 🔔');
+    startProgressBar(G.settings?.buzzTime||10,'buzz');
+    startTick(G.settings?.buzzTime||10);
+  }
   updateMyAttempts({},{});
-  startProgressBar(G.settings?.buzzTime||10,'buzz');
-  startTick(G.settings?.buzzTime||10);
   _onProgBarEnd=()=>{
     stopTick();
     setPhase('buzz',"⏰ Time's up!");
@@ -2862,10 +2855,7 @@ function loadQuestionUI(cur){
     document.getElementById('g-buzz-area').style.display='none';
     document.getElementById('g-answer-area').style.display='block';
     document.getElementById('g-ans-opts').style.display='none';
-    document.getElementById('g-wait-ans').style.display='none';
-    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
-    if(ringWrap) ringWrap.style.display='none';
-    revealCorrectAnswerUI(cur);
+    document.getElementById('g-wait-ans').style.display='none';    revealCorrectAnswerUI(cur);
   };
 }
 
@@ -2894,10 +2884,7 @@ function showAnswerPhase(buzzer, qAttempts, blocked){
   if(isMe){
     setPhase('answer','You buzzed! Answer in 10 seconds ⏱');
     document.getElementById('answering-overlay').classList.remove('visible');
-    // Hide the ring timer — progress bar is enough
-    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
-    if(ringWrap) ringWrap.style.display='none';
-    const q=G.questions[G.cur];
+    // Hide the ring timer — progress bar is enough    const q=G.questions[G.cur];
     const shuffled=shuffle(q.a.map((ans,i)=>({ans,isCorrect:i===q.c})));
     document.getElementById('g-ans-opts').innerHTML=shuffled.map(opt=>
       `<button class="ans-btn" onclick="submitAnswer(this,${opt.isCorrect})">${opt.ans}</button>`
@@ -3574,20 +3561,6 @@ function stopProgressBar(){
   if(bar) bar.style.width='0%';
 }
 
-let _ringInterval=null;
-function startRingTimer(seconds){
-  stopRingTimer();
-  const arc=document.getElementById('g-cring-arc'),num=document.getElementById('g-cring-num');
-  if(!arc||!num) return;
-  const circ=163.4; arc.style.strokeDashoffset='0'; num.textContent=seconds;
-  const start=Date.now(),total=seconds*1000;
-  _ringInterval=setInterval(()=>{
-    const elapsed=Date.now()-start;
-    arc.style.strokeDashoffset=(circ*Math.min(1,elapsed/total)).toString();
-    num.textContent=Math.max(0,seconds-Math.floor(elapsed/1000));
-    if(elapsed>=total) stopRingTimer();
-  },50);
-}
 let _ovTimerInterval=null;
 function startOverlayTimer(seconds){
   stopOverlayTimer();
