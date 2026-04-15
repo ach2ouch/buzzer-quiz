@@ -1,0 +1,3405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسابقة البازر ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Palette */
+  --cream:#fdf6ee;
+  --cream2:#f7ede0;
+  --coral:#ff4d4d;
+  --coral2:rgba(255,77,77,0.12);
+  --cyan:#00d4ff;
+  --cyan2:rgba(0,212,255,0.12);
+  --sun:#ffb800;
+  --sun2:rgba(255,184,0,0.14);
+  --violet:#7c3aed;
+  --violet2:rgba(124,58,237,0.1);
+  --mint:#00c896;
+  --mint2:rgba(0,200,150,0.1);
+  --ink:#1a0a00;
+  --ink2:rgba(26,10,0,0.55);
+  --ink3:rgba(26,10,0,0.25);
+
+  /* Fonts */
+  --fn:'Readex Pro',sans-serif;
+  --fe:'Space Grotesk',sans-serif;
+
+  /* Radius */
+  --r:20px;--r2:14px;--r3:10px;
+}
+
+html,body{
+  min-height:100%;
+  font-family:var(--fn);
+  background:var(--cream);
+  color:var(--ink);
+  overflow-x:hidden;
+}
+
+/* ══════════════════════════════════
+   ANIMATED BACKGROUND ORBS
+══════════════════════════════════ */
+body::before,body::after{
+  content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;
+  filter:blur(80px);opacity:.55;
+}
+body::before{
+  width:600px;height:600px;
+  background:radial-gradient(circle,#ffb800 0%,#ff6b35 50%,transparent 70%);
+  top:-200px;right:-200px;
+  animation:orbFloat1 12s ease-in-out infinite;
+}
+body::after{
+  width:500px;height:500px;
+  background:radial-gradient(circle,#00d4ff 0%,#7c3aed 50%,transparent 70%);
+  bottom:-150px;left:-150px;
+  animation:orbFloat2 15s ease-in-out infinite;
+}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(1.1)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.08)}}
+
+.orb3{
+  position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:0;
+  filter:blur(60px);opacity:.4;
+  background:radial-gradient(circle,#00c896,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:orbFloat3 18s ease-in-out infinite;
+}
+@keyframes orbFloat3{0%,100%{transform:translate(-50%,-50%) scale(1)}33%{transform:translate(-60%,-40%) scale(1.2)}66%{transform:translate(-40%,-60%) scale(.9)}}
+
+/* ══════════════════════════════════
+   LAYOUT
+══════════════════════════════════ */
+.app{
+  position:relative;z-index:1;
+  width:100%;max-width:500px;
+  margin:0 auto;
+  padding:1.25rem 1rem 3rem;
+  min-height:100vh;
+}
+
+/* ══════════════════════════════════
+   SCREEN TRANSITIONS
+══════════════════════════════════ */
+.screen{display:none}
+.screen.active{
+  display:block;
+  animation:screenIn .5s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes screenIn{
+  from{opacity:0;transform:translateY(24px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes countPop{
+  0%{transform:scale(.3) rotate(-8deg);opacity:0}
+  60%{transform:scale(1.15) rotate(2deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+
+/* ══════════════════════════════════
+   GLASS CARDS
+══════════════════════════════════ */
+.card{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1.5px solid rgba(255,255,255,.9);
+  border-radius:var(--r);
+  padding:1.75rem;
+  margin-bottom:1rem;
+  box-shadow:0 8px 32px rgba(255,184,0,.08),0 2px 8px rgba(0,0,0,.06);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(255,255,255,.6) 0%,transparent 60%);
+  pointer-events:none;
+}
+.card-sm{
+  background:rgba(255,255,255,.5);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:var(--r2);
+  padding:.875rem 1.25rem;
+  margin-bottom:.75rem;
+}
+
+/* ══════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════ */
+h1{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.2}
+h2{font-size:19px;font-weight:600;margin-bottom:1rem}
+.label{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ══════════════════════════════════
+   INPUTS
+══════════════════════════════════ */
+input,select{
+  width:100%;padding:13px 16px;
+  background:rgba(255,255,255,.8);
+  border:2px solid rgba(26,10,0,.1);
+  border-radius:var(--r2);
+  color:var(--ink);
+  font-family:var(--fn);font-size:15px;font-weight:500;
+  margin-top:6px;
+  transition:all .2s;
+  direction:ltr;
+  text-align:left;
+}
+input[dir="rtl"]{direction:rtl;text-align:right}
+input:focus,select:focus{
+  outline:none;
+  border-color:var(--coral);
+  background:#fff;
+  box-shadow:0 0 0 4px var(--coral2);
+}
+input::placeholder{color:var(--ink3)}
+select option{background:#fff;color:var(--ink)}
+
+/* ══════════════════════════════════
+   BUTTONS
+══════════════════════════════════ */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:15px 20px;
+  border:2px solid rgba(26,10,0,.1);
+  border-radius:var(--r2);
+  background:rgba(255,255,255,.7);
+  color:var(--ink);
+  font-family:var(--fn);font-size:15px;font-weight:600;
+  cursor:pointer;
+  transition:all .18s cubic-bezier(.34,1.4,.64,1);
+  margin-top:8px;
+  position:relative;overflow:hidden;
+  direction:ltr;unicode-bidi:bidi-override;
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.4),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:rgba(26,10,0,.2)}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(.97) translateY(0)}
+
+.btn-coral{
+  background:linear-gradient(135deg,#ff6b35,#ff4d4d);
+  border-color:transparent;color:#fff;
+  box-shadow:0 6px 20px rgba(255,77,77,.35);
+}
+.btn-coral:hover{box-shadow:0 10px 30px rgba(255,77,77,.5);transform:translateY(-3px)}
+
+.btn-cyan{
+  background:linear-gradient(135deg,#00d4ff,#0099cc);
+  border-color:transparent;color:#fff;
+  box-shadow:0 6px 20px rgba(0,212,255,.3);
+}
+.btn-cyan:hover{box-shadow:0 10px 30px rgba(0,212,255,.45)}
+
+.btn-sun{
+  background:linear-gradient(135deg,#ffb800,#ff8c00);
+  border-color:transparent;color:#fff;
+  box-shadow:0 6px 20px rgba(255,184,0,.4);
+}
+.btn-sun:hover{box-shadow:0 10px 30px rgba(255,184,0,.6)}
+
+.btn-mint{
+  background:linear-gradient(135deg,#00c896,#00a878);
+  border-color:transparent;color:#fff;
+  box-shadow:0 6px 20px rgba(0,200,150,.3);
+}
+.btn-mint:hover{box-shadow:0 10px 30px rgba(0,200,150,.45)}
+
+/* ══════════════════════════════════
+   HOME HERO
+══════════════════════════════════ */
+.hero{
+  text-align:center;
+  padding:3rem 0 2rem;
+  position:relative;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink2);margin-bottom:1.5rem;
+  direction:ltr;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';flex:1;height:1px;width:28px;
+  background:linear-gradient(90deg,transparent,rgba(26,10,0,.18));
+}
+.hero-eyebrow::after{transform:scaleX(-1)}
+.hero-live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--coral);
+  animation:livePulse 1.4s ease-in-out infinite;
+}
+.hero-title{
+  font-family:var(--fe);
+  font-size:80px;font-weight:700;letter-spacing:-4px;
+  line-height:.95;margin-bottom:1rem;
+  direction:ltr;
+  background:linear-gradient(160deg,#ff4d4d 0%,#ff8c00 40%,#ffb800 65%,#7c3aed 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:300% 300%;
+  animation:titleGradient 5s ease infinite;
+  position:relative;
+}
+@keyframes titleGradient{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.hero-title::after{
+  content:'!';
+  background:linear-gradient(160deg,#7c3aed,#00d4ff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-stats{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  direction:ltr;margin-top:.25rem;
+}
+.hero-stat{
+  padding:0 14px;text-align:center;
+}
+.hero-stat:not(:last-child){
+  border-right:1.5px solid rgba(26,10,0,.1);
+}
+.hs-val{font-size:20px;font-weight:700;color:var(--ink);font-family:var(--fe);line-height:1.1}
+.hs-lbl{font-size:10px;font-weight:600;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+
+/* ══════════════════════════════════
+   HOME CHOICES
+══════════════════════════════════ */
+.home-choices{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:1.5rem;
+}
+.home-choice{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;
+  width:100%;padding:32px 16px 24px;
+  border-radius:var(--r);
+  border:none;
+  cursor:pointer;text-align:center;
+  position:relative;overflow:hidden;
+  transition:all .22s cubic-bezier(.34,1.4,.64,1);
+}
+.home-choice::before{
+  content:'';position:absolute;inset:0;
+  transition:opacity .2s;
+}
+.home-choice-create{
+  background:linear-gradient(145deg,#ff6b35,#ff4d4d);
+  box-shadow:0 8px 30px rgba(255,77,77,.4),0 2px 8px rgba(255,77,77,.25);
+}
+.home-choice-create::before{
+  background:linear-gradient(160deg,rgba(255,255,255,.22) 0%,transparent 60%);
+}
+.home-choice-join{
+  background:linear-gradient(145deg,#00b8e6,#0088cc);
+  box-shadow:0 8px 30px rgba(0,180,230,.35),0 2px 8px rgba(0,136,204,.25);
+}
+.home-choice-join::before{
+  background:linear-gradient(160deg,rgba(255,255,255,.22) 0%,transparent 60%);
+}
+.home-choice:hover{transform:translateY(-5px) scale(1.03)}
+.home-choice-create:hover{box-shadow:0 18px 50px rgba(255,77,77,.55),0 4px 16px rgba(255,77,77,.3)}
+.home-choice-join:hover{box-shadow:0 18px 50px rgba(0,180,230,.5),0 4px 16px rgba(0,136,204,.3)}
+.home-choice:active{transform:scale(.97)}
+.hc-icon-wrap{
+  width:60px;height:60px;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  backdrop-filter:blur(4px);
+  border:1.5px solid rgba(255,255,255,.3);
+  transition:transform .2s cubic-bezier(.34,1.6,.64,1);
+}
+.home-choice:hover .hc-icon-wrap{transform:scale(1.12) rotate(-5deg)}
+.hc-title{
+  font-size:15px;font-weight:700;color:#fff;
+  letter-spacing:-.2px;line-height:1.2;
+}
+.hc-sub{font-size:11px;font-weight:500;color:rgba(255,255,255,.75);line-height:1.4}
+.hc-arrow{display:none}
+
+/* ══════════════════════════════════
+   FLOW MODALS (Create / Join)
+══════════════════════════════════ */
+.flow-modal{
+  position:fixed;inset:0;z-index:300;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.flow-backdrop{
+  position:absolute;inset:0;
+  background:rgba(26,10,0,.25);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  animation:fadeBd .25s ease;
+}
+@keyframes fadeBd{from{opacity:0}to{opacity:1}}
+.flow-card{
+  position:relative;z-index:1;
+  width:100%;max-width:500px;
+  max-height:92vh;
+  overflow-y:auto;
+  background:var(--cream);
+  border-radius:28px 28px 0 0;
+  padding:1.75rem 1.5rem 2.5rem;
+  animation:slideUp .35s cubic-bezier(.34,1.2,.64,1);
+  box-shadow:0 -8px 40px rgba(0,0,0,.12);
+}
+@keyframes slideUp{
+  from{transform:translateY(100%)}
+  to{transform:translateY(0)}
+}
+.flow-back{
+  background:none;border:none;
+  font-family:var(--fn);font-size:13px;font-weight:600;
+  color:var(--ink2);cursor:pointer;padding:0;
+  margin-bottom:1.25rem;display:block;
+  direction:ltr;text-align:left;width:100%;
+  transition:color .2s;
+}
+.flow-back:hover{color:var(--coral)}
+
+/* Loading state for buttons */
+.btn-loading{
+  pointer-events:none;
+  position:relative;
+  overflow:hidden;
+  color:transparent !important;
+}
+.btn-loading::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.35) 50%,transparent 100%);
+  background-size:200% 100%;
+  animation:shimmerSlide 1.2s ease infinite;
+}
+.btn-loading::after{
+  content:'';
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:22px;height:22px;
+  border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  animation:btnSpin .7s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes shimmerSlide{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+@keyframes btnSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* ══════════════════════════════════
+   PILL PICKER (replaces select)
+══════════════════════════════════ */
+.pill-group{
+  display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;
+  direction:ltr;
+}
+.pill{
+  flex:1;min-width:60px;
+  padding:10px 6px;
+  background:rgba(255,255,255,.6);
+  border:2px solid rgba(26,10,0,.1);
+  border-radius:30px;
+  text-align:center;
+  font-family:var(--fn);font-size:13px;font-weight:600;
+  cursor:pointer;color:var(--ink2);
+  transition:all .18s cubic-bezier(.34,1.4,.64,1);
+  direction:ltr;
+  unicode-bidi:bidi-override;
+}
+.pill:hover{border-color:var(--coral);color:var(--coral);transform:translateY(-2px)}
+.pill.active{
+  background:linear-gradient(135deg,#ff6b35,#ff4d4d);
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 14px rgba(255,77,77,.35);
+  transform:scale(1.06);
+}
+.setting-row{margin-bottom:1rem}
+.setting-label{
+  font-size:11px;font-weight:700;color:var(--ink2);
+  letter-spacing:.5px;text-transform:uppercase;
+  margin-bottom:6px;direction:ltr;text-align:left;
+}
+
+/* ══════════════════════════════════
+   SUBJECT GRID
+══════════════════════════════════ */
+.subj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:1rem 0}
+.subj-card{
+  padding:12px 8px;
+  background:rgba(255,255,255,.6);
+  border:2px solid rgba(26,10,0,.08);
+  border-radius:var(--r2);
+  text-align:center;cursor:pointer;
+  transition:all .2s cubic-bezier(.34,1.4,.64,1);
+}
+.subj-card:hover{transform:translateY(-3px);border-color:var(--coral);background:rgba(255,255,255,.9)}
+.subj-card.on{
+  border-color:var(--coral);
+  background:linear-gradient(135deg,rgba(255,77,77,.1),rgba(255,184,0,.1));
+  transform:scale(1.04);
+  box-shadow:0 4px 16px rgba(255,77,77,.2);
+}
+.subj-icon{font-size:22px;margin-bottom:4px}
+.subj-name{font-size:10px;font-weight:600;color:var(--ink2);letter-spacing:.2px}
+.subj-card.on .subj-name{color:var(--coral)}
+
+/* ══════════════════════════════════
+   ROOM CODE
+══════════════════════════════════ */
+.room-code{
+  font-family:var(--fe);
+  font-size:38px;font-weight:700;letter-spacing:10px;text-align:center;
+  padding:1.25rem;
+  background:linear-gradient(135deg,rgba(255,184,0,.15),rgba(255,77,77,.1));
+  border:2px dashed rgba(255,184,0,.5);
+  border-radius:var(--r2);
+  color:var(--coral);
+  margin:1rem 0;
+  animation:codePulse 3s ease-in-out infinite;
+}
+@keyframes codePulse{
+  0%,100%{border-color:rgba(255,184,0,.5)}
+  50%{border-color:rgba(255,77,77,.6)}
+}
+
+/* ══════════════════════════════════
+   PLAYER ROWS (lobby)
+══════════════════════════════════ */
+.p-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1.5px solid rgba(26,10,0,.06);
+  animation:rowIn .3s ease both;
+}
+@keyframes rowIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.p-row:last-child{border-bottom:none}
+.av{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;flex-shrink:0;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);
+}
+.chip{
+  font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;
+}
+.chip-mint{background:linear-gradient(135deg,#00c896,#00a878);color:#fff}
+.chip-sun{background:linear-gradient(135deg,#ffb800,#ff8c00);color:#fff}
+.chip-cyan{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#fff}
+
+/* ══════════════════════════════════
+   GAME HEADER
+══════════════════════════════════ */
+.g-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+  padding:.75rem 1rem;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(12px);
+  border-radius:var(--r2);
+  border:1.5px solid rgba(255,255,255,.9);
+}
+.g-qnum-badge{
+  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  background:var(--violet);color:#fff;
+  padding:4px 10px;border-radius:20px;
+}
+.g-subj-badge{
+  font-size:12px;font-weight:600;color:var(--ink2);
+}
+.g-score-badge{
+  font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,var(--sun),var(--coral));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ══════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════ */
+.prog-wrap{
+  height:7px;
+  background:rgba(26,10,0,.08);
+  border-radius:4px;
+  margin-bottom:1rem;
+  overflow:hidden;
+  position:relative;
+}
+.prog-bar{
+  height:100%;border-radius:4px;
+  width:0%;
+  transition:none;
+}
+
+/* ══════════════════════════════════
+   PHASE BOX
+══════════════════════════════════ */
+.phase-box{
+  text-align:center;padding:11px;font-size:13px;font-weight:600;
+  border-radius:var(--r2);
+  background:rgba(255,255,255,.6);
+  border:1.5px solid rgba(26,10,0,.08);
+  color:var(--ink2);
+  margin-bottom:1rem;
+  transition:all .3s;
+  direction:ltr;
+  unicode-bidi:bidi-override;
+}
+.phase-box.answer-time{
+  background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(124,58,237,.08));
+  border-color:rgba(0,212,255,.3);
+  color:var(--violet);
+  animation:phaseGlow .8s ease-in-out infinite alternate;
+}
+@keyframes phaseGlow{
+  from{box-shadow:0 0 0 0 rgba(0,212,255,.2)}
+  to{box-shadow:0 0 16px 4px rgba(0,212,255,.25)}
+}
+.phase-box.blocked{
+  background:rgba(255,77,77,.08);
+  border-color:rgba(255,77,77,.25);
+  color:var(--coral);
+}
+
+/* ══════════════════════════════════
+   QUESTION BOX
+══════════════════════════════════ */
+.q-box{
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,.95);
+  border-radius:var(--r);
+  padding:1.75rem 1.5rem;
+  text-align:center;
+  font-size:18px;font-weight:600;
+  line-height:1.7;
+  margin-bottom:1rem;
+  min-height:90px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 8px 32px rgba(255,184,0,.1),0 2px 8px rgba(0,0,0,.06);
+}
+.q-box::before{
+  content:'';position:absolute;
+  top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent 340deg,rgba(255,184,0,.06) 360deg);
+  animation:shimmer 4s linear infinite;
+}
+@keyframes shimmer{to{transform:rotate(360deg)}}
+
+/* ══════════════════════════════════
+   BUZZER BUTTON
+══════════════════════════════════ */
+.buzzer-wrap{display:flex;justify-content:center;margin-bottom:1rem}
+.buzzer-btn{
+  width:150px;height:150px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#ff8c00 0%,#ff4d4d 50%,#ff6b35 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  font-family:var(--fn);font-size:16px;font-weight:700;color:#fff;
+  position:relative;
+  transition:all .15s;
+  box-shadow:
+    0 0 0 12px rgba(255,184,0,.15),
+    0 0 0 24px rgba(255,77,77,.08),
+    0 12px 40px rgba(255,77,77,.45);
+  animation:buzzerPulse 2s ease-in-out infinite;
+}
+.buzzer-btn::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(255,255,255,.4),transparent);
+  pointer-events:none;
+}
+.buzzer-btn .bz-icon{font-size:34px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+@keyframes buzzerPulse{
+  0%,100%{
+    box-shadow:0 0 0 12px rgba(255,184,0,.15),0 0 0 24px rgba(255,77,77,.08),0 12px 40px rgba(255,77,77,.45);
+    transform:scale(1);
+  }
+  50%{
+    box-shadow:0 0 0 18px rgba(255,184,0,.2),0 0 0 34px rgba(255,77,77,.1),0 18px 50px rgba(255,77,77,.55);
+    transform:scale(1.04);
+  }
+}
+.buzzer-btn:hover{transform:scale(1.08);box-shadow:0 0 0 20px rgba(255,184,0,.25),0 20px 60px rgba(255,77,77,.6)}
+.buzzer-btn:active{transform:scale(.94)}
+.buzzer-btn:disabled{
+  background:linear-gradient(135deg,#ccc,#aaa);
+  box-shadow:none;animation:none;cursor:default;
+}
+.buzzer-btn.locked{
+  background:linear-gradient(135deg,#ff4d4d,#c0392b);
+  animation:none;
+  box-shadow:0 6px 20px rgba(255,77,77,.3);
+}
+
+/* ══════════════════════════════════
+   ANSWER BUTTONS
+══════════════════════════════════ */
+.ans-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem}
+.ans-btn{
+  padding:15px 12px;
+  background:rgba(255,255,255,.75);
+  border:2px solid rgba(26,10,0,.1);
+  border-radius:var(--r2);
+  color:var(--ink);
+  font-family:var(--fn);font-size:14px;font-weight:600;
+  cursor:pointer;
+  transition:all .18s cubic-bezier(.34,1.4,.64,1);
+  text-align:center;
+  animation:ansIn .35s cubic-bezier(.34,1.4,.64,1) both;
+}
+.ans-btn:nth-child(1){animation-delay:.05s}
+.ans-btn:nth-child(2){animation-delay:.1s}
+.ans-btn:nth-child(3){animation-delay:.15s}
+.ans-btn:nth-child(4){animation-delay:.2s}
+@keyframes ansIn{from{opacity:0;transform:scale(.8) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.ans-btn:hover:not(:disabled){
+  transform:translateY(-3px) scale(1.02);
+  border-color:var(--cyan);
+  background:rgba(0,212,255,.1);
+  box-shadow:0 6px 20px rgba(0,212,255,.2);
+}
+.ans-btn:active:not(:disabled){transform:scale(.96)}
+.ans-btn:disabled{cursor:default;opacity:.6}
+.ans-btn.correct{
+  background:linear-gradient(135deg,rgba(0,200,150,.2),rgba(0,200,150,.1));
+  border-color:var(--mint);color:var(--mint);
+  animation:correctPop .4s cubic-bezier(.34,1.8,.64,1);
+  box-shadow:0 0 20px rgba(0,200,150,.3);
+}
+@keyframes correctPop{from{transform:scale(.9)}to{transform:scale(1)}}
+.ans-btn.wrong{
+  background:rgba(255,77,77,.1);
+  border-color:var(--coral);color:var(--coral);
+  animation:wrongShake .4s ease;
+}
+@keyframes wrongShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+
+/* ══════════════════════════════════
+   SCOREBOARD
+══════════════════════════════════ */
+.scoreboard{
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,.9);
+  border-radius:var(--r2);
+  overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,.05);
+}
+.sc-row{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 13px;
+  border-bottom:1.5px solid rgba(26,10,0,.05);
+  transition:background .2s;
+}
+.sc-row:last-child{border-bottom:none}
+.sc-row.blocked-player{opacity:.4}
+.sc-bar-wrap{flex:1;height:5px;background:rgba(26,10,0,.07);border-radius:3px;overflow:hidden}
+.sc-bar{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.34,1.4,.64,1)}
+.sc-score{
+  font-size:13px;font-weight:700;min-width:40px;
+  text-align:right;direction:ltr;font-family:var(--fe);
+}
+.attempt-dots{display:flex;gap:3px}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(26,10,0,.12);
+  transition:background .2s;
+}
+.dot.used{background:var(--coral)}
+
+/* ══════════════════════════════════
+   WAITING ANSWER
+══════════════════════════════════ */
+.waiting-ans{
+  text-align:center;padding:1rem;font-size:13px;font-weight:600;
+  color:var(--ink2);direction:ltr;
+}
+
+/* ══════════════════════════════════
+   CORRECT REVEAL
+══════════════════════════════════ */
+#g-correct-reveal{
+  margin-top:.75rem;
+  animation:revealIn .4s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes revealIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+#g-correct-answer-text{
+  background:linear-gradient(135deg,rgba(0,200,150,.15),rgba(0,212,255,.1));
+  border:2px solid rgba(0,200,150,.4);
+  border-radius:var(--r2);
+  padding:14px;text-align:center;
+  font-size:17px;font-weight:700;
+  color:var(--mint);
+  direction:rtl;
+}
+
+/* ══════════════════════════════════
+   BACK BUTTON
+══════════════════════════════════ */
+.back{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--fn);font-size:13px;font-weight:600;color:var(--ink2);
+  cursor:pointer;background:none;border:none;
+  padding:0;margin-bottom:1rem;
+  transition:color .2s;
+}
+.back:hover{color:var(--coral)}
+
+/* ══════════════════════════════════
+   COLS & DIV
+══════════════════════════════════ */
+.cols{display:flex;gap:10px}.cols>div{flex:1}
+.div{height:1.5px;background:rgba(26,10,0,.07);margin:.875rem 0}
+
+/* ══════════════════════════════════
+   STATUS ROW
+══════════════════════════════════ */
+.status-row{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mint)}
+.dot-live{
+  width:8px;height:8px;border-radius:50%;background:var(--mint);
+  animation:livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* ══════════════════════════════════
+   NOTIFICATION
+══════════════════════════════════ */
+.notif{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  padding:12px 24px;border-radius:30px;
+  font-family:var(--fn);font-size:14px;font-weight:700;
+  z-index:9999;white-space:nowrap;
+  animation:notifIn .4s cubic-bezier(.34,1.6,.64,1);
+  box-shadow:0 8px 30px rgba(0,0,0,.15);
+  direction:ltr;
+  unicode-bidi:bidi-override;
+}
+@keyframes notifIn{
+  from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.8)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+.notif.ok{background:linear-gradient(135deg,#00c896,#00a878);color:#fff}
+.notif.ko{background:linear-gradient(135deg,#ff4d4d,#cc0000);color:#fff}
+.notif.info{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff}
+.notif.gold{background:linear-gradient(135deg,#ffb800,#ff8c00);color:#fff}
+
+/* ══════════════════════════════════
+   ATTACK ANIMATION
+══════════════════════════════════ */
+#attack-overlay{
+  position:fixed;inset:0;z-index:800;
+  display:none;
+  align-items:center;justify-content:center;overflow:hidden;
+}
+.atk-backdrop{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 45%,rgba(255,77,77,.2) 0%,rgba(253,246,238,.95) 70%);
+  animation:atkBdIn .25s ease forwards;
+}
+@keyframes atkBdIn{from{opacity:0}to{opacity:1}}
+.atk-rings{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%)}
+.atk-ring{
+  position:absolute;border-radius:50%;border:2px solid rgba(255,77,77,.3);
+  animation:ringExpand var(--rd,.8s) ease-out var(--rl,0s) both;
+}
+@keyframes ringExpand{
+  0%{width:0;height:0;top:0;left:0;margin:0;opacity:.8}
+  100%{width:360px;height:360px;top:-180px;left:-180px;opacity:0}
+}
+.atk-scene{
+  position:relative;z-index:2;width:100%;max-width:400px;padding:0 1.5rem;text-align:center;
+}
+.atk-headline{
+  font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--coral);margin-bottom:.5rem;
+  animation:hdrop .35s ease .05s both;
+}
+@keyframes hdrop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.atk-vs-row{display:flex;align-items:center;justify-content:center;gap:0;margin:1rem 0}
+.atk-card{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1}
+.atk-card.attacker .atk-av-wrap{animation:atkSlideL .45s cubic-bezier(.34,1.56,.64,1) .1s both}
+.atk-card.victim .atk-av-wrap{animation:atkSlideR .45s cubic-bezier(.34,1.56,.64,1) .1s both}
+@keyframes atkSlideL{from{transform:translateX(-50px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes atkSlideR{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+.atk-av-wrap{position:relative}
+.atk-avatar{
+  width:76px;height:76px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:800;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+.atk-avatar.is-attacker{animation:gAttacker 1.6s ease-in-out .5s infinite alternate}
+@keyframes gAttacker{
+  from{box-shadow:0 0 0 4px rgba(255,77,77,.4),0 8px 24px rgba(255,77,77,.3)}
+  to{box-shadow:0 0 0 8px rgba(255,77,77,.6),0 12px 36px rgba(255,77,77,.5)}
+}
+.atk-avatar.is-victim{animation:victimShake .5s ease 1s both}
+@keyframes victimShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-7px) rotate(-3deg)}
+  40%{transform:translateX(7px) rotate(3deg)}
+  60%{transform:translateX(-5px)}80%{transform:translateX(5px)}
+}
+.atk-crown{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:18px;animation:crownIn .4s cubic-bezier(.34,1.56,.64,1) .35s both}
+@keyframes crownIn{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+.atk-pname{font-size:13px;font-weight:700;color:var(--ink);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atk-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:-2px}
+.atk-badge.atk{background:linear-gradient(135deg,#ff6b35,#ff4d4d);color:#fff}
+.atk-badge.vic{background:rgba(26,10,0,.08);color:var(--ink2)}
+.atk-mid{width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.atk-weapon-icon{
+  font-size:38px;
+  animation:wpnCross .55s cubic-bezier(.34,1.56,.64,1) .25s both;
+  filter:drop-shadow(0 4px 12px rgba(255,77,77,.6));
+}
+@keyframes wpnCross{
+  0%{transform:translateX(-50px) rotate(-40deg) scale(.3);opacity:0}
+  55%{transform:translateX(6px) rotate(12deg) scale(1.25);opacity:1}
+  100%{transform:translateX(0) rotate(-8deg) scale(1);opacity:1}
+}
+.atk-impact-txt{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--coral);animation:impIn .35s ease .65s both}
+@keyframes impIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.atk-minus-wrap{margin:.875rem 0 .5rem;animation:bigMinus .55s cubic-bezier(.34,1.56,.64,1) .85s both}
+@keyframes bigMinus{0%{transform:scale(0) rotate(-20deg);opacity:0}55%{transform:scale(1.25) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.atk-minus-num{
+  font-size:72px;font-weight:800;line-height:1;font-family:var(--fe);
+  background:linear-gradient(160deg,#ff6b35,#ff4d4d,#c0392b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 4px 12px rgba(255,77,77,.4));
+}
+.atk-sub{font-size:13px;color:var(--ink2);font-weight:600;animation:fadeUp .4s ease 1.1s both}
+
+/* ══════════════════════════════════
+   POST-QUESTION SCOREBOARD
+══════════════════════════════════ */
+.qscore-overlay{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(253,246,238,.88);
+  backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;padding:1rem;
+}
+.qscore-card{
+  background:rgba(255,255,255,.9);
+  border:2px solid rgba(255,255,255,.95);
+  border-radius:var(--r);
+  padding:1.75rem;width:100%;max-width:420px;
+  box-shadow:0 20px 60px rgba(255,184,0,.15),0 4px 16px rgba(0,0,0,.08);
+  animation:slideUp .4s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.qscore-title{
+  font-size:15px;font-weight:700;text-align:center;margin-bottom:1rem;
+  background:linear-gradient(135deg,var(--coral),var(--sun));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.qscore-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1.5px solid rgba(26,10,0,.06);
+  animation:rowSlide .4s ease both;
+}
+@keyframes rowSlide{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:translateX(0)}}
+.qscore-row:last-child{border-bottom:none}
+.qscore-rank{font-size:18px;width:28px;text-align:center}
+.qscore-bar-wrap{flex:1;height:6px;background:rgba(26,10,0,.07);border-radius:3px;overflow:hidden}
+.qscore-bar{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.34,1.4,.64,1)}
+.qscore-pts{font-size:16px;font-weight:700;min-width:40px;text-align:right;direction:ltr;font-family:var(--fe)}
+.qscore-delta{font-size:12px;font-weight:700;min-width:28px;text-align:center;padding:2px 6px;border-radius:10px}
+.delta-up{background:rgba(0,200,150,.15);color:var(--mint)}
+.delta-down{background:rgba(255,77,77,.12);color:var(--coral)}
+.delta-zero{background:rgba(26,10,0,.07);color:var(--ink2)}
+.next-countdown{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:1rem;font-size:13px;color:var(--ink2);font-weight:600}
+.next-circle{
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid var(--coral);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--coral);font-family:var(--fe);
+  animation:circleCountdown 1s ease-in-out infinite;
+}
+@keyframes circleCountdown{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* ══════════════════════════════════
+   WIN OVERLAY
+══════════════════════════════════ */
+.win-overlay{
+  position:fixed;inset:0;z-index:900;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,184,0,.25) 0%,rgba(253,246,238,.97) 60%);
+  display:flex;align-items:center;justify-content:center;
+  padding:1rem;overflow-y:auto;overflow-x:hidden;
+}
+.confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:901}
+.win-card{
+  background:rgba(255,255,255,.88);
+  border:2px solid rgba(255,255,255,.97);
+  border-radius:var(--r);
+  padding:2rem 1.5rem;width:100%;max-width:460px;
+  text-align:center;
+  position:relative;z-index:902;
+  box-shadow:0 30px 80px rgba(255,184,0,.2),0 8px 24px rgba(0,0,0,.08);
+  animation:winPop .7s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes winPop{
+  0%{transform:scale(.5) translateY(60px);opacity:0}
+  60%{transform:scale(1.05)}
+  100%{transform:scale(1) translateY(0);opacity:1}
+}
+.win-trophy{
+  font-size:72px;display:block;margin-bottom:8px;
+  animation:trophySpin 1s cubic-bezier(.34,1.56,.64,1) .3s both;
+  filter:drop-shadow(0 8px 20px rgba(255,184,0,.5));
+}
+@keyframes trophySpin{
+  0%{transform:rotate(-20deg) scale(0)}
+  60%{transform:rotate(8deg) scale(1.15)}
+  100%{transform:rotate(0) scale(1)}
+}
+.win-name{
+  font-size:30px;font-weight:700;letter-spacing:-1px;margin-bottom:4px;
+  background:linear-gradient(135deg,#ff4d4d,#ff8c00,#ffb800);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:200% 200%;animation:titleGradient 3s ease infinite;
+  direction:ltr;unicode-bidi:bidi-override;
+}
+.win-sub{font-size:14px;color:var(--ink2);font-weight:500;margin-bottom:1.5rem;direction:ltr;}
+.win-podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:1.25rem 0}
+.win-pod-item{text-align:center;flex:1}
+.win-pod-block{border-radius:var(--r2) var(--r2) 0 0;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:5px}
+.wp-1 .win-pod-block{height:80px;background:linear-gradient(135deg,rgba(255,184,0,.2),rgba(255,140,0,.1));border:2px solid rgba(255,184,0,.4)}
+.wp-2 .win-pod-block{height:54px;background:rgba(26,10,0,.04);border:1.5px solid rgba(26,10,0,.1)}
+.wp-3 .win-pod-block{height:38px;background:rgba(255,77,77,.06);border:1.5px solid rgba(255,77,77,.2)}
+.win-pod-name{font-size:11px;color:var(--ink2);font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-pod-score{font-size:15px;font-weight:700;font-family:var(--fe)}
+.win-final-list{text-align:right;margin-bottom:1rem}
+.win-row{
+  display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1.5px solid rgba(26,10,0,.06);
+  animation:rowSlide .4s ease both;
+}
+.win-row:last-child{border-bottom:none}
+.replay-subj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:.75rem 0}
+.replay-subj{
+  padding:9px 6px;border:2px solid rgba(26,10,0,.08);border-radius:var(--r2);
+  text-align:center;cursor:pointer;transition:all .2s cubic-bezier(.34,1.4,.64,1);
+  background:rgba(255,255,255,.6);
+}
+.replay-subj:hover{transform:translateY(-2px);border-color:var(--coral)}
+.replay-subj.on{border-color:var(--coral);background:linear-gradient(135deg,rgba(255,77,77,.1),rgba(255,184,0,.08));transform:scale(1.04)}
+.replay-subj .rs-icon{font-size:18px;margin-bottom:2px}
+.replay-subj .rs-name{font-size:10px;font-weight:600;color:var(--ink2)}
+.replay-subj.on .rs-name{color:var(--coral)}
+
+/* ══════════════════════════════════
+   WEAPON OVERLAY
+══════════════════════════════════ */
+.weapon-overlay{
+  position:fixed;inset:0;
+  background:rgba(253,246,238,.88);
+  backdrop-filter:blur(20px);
+  z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:1rem;
+}
+.weapon-card{
+  background:rgba(255,255,255,.92);
+  border:2px solid rgba(255,255,255,.97);
+  border-radius:var(--r);
+  padding:1.75rem;width:100%;max-width:400px;text-align:center;
+  box-shadow:0 20px 60px rgba(255,184,0,.2);
+  animation:weaponCardIn .4s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes weaponCardIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.weapon-title{font-size:18px;font-weight:700;margin-bottom:.5rem;color:var(--ink)}
+.weapon-timer{
+  font-size:40px;font-weight:700;font-family:var(--fe);
+  background:linear-gradient(135deg,var(--coral),var(--sun));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin:.75rem 0;
+}
+.weapon-prog{height:5px;background:rgba(26,10,0,.08);border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+.weapon-prog-bar{height:100%;background:linear-gradient(90deg,var(--sun),var(--coral));border-radius:3px;transition:width 10s linear}
+.weapon-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.75rem}
+.w-btn{
+  padding:16px 10px;border-radius:var(--r2);
+  font-family:var(--fn);font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .18s cubic-bezier(.34,1.4,.64,1);
+  border:none;
+}
+.w-btn:hover{transform:translateY(-3px)}
+.w-btn:active{transform:scale(.97)}
+.w-btn-point{background:linear-gradient(135deg,#00c896,#00a878);color:#fff;box-shadow:0 6px 20px rgba(0,200,150,.3)}
+.w-btn-point:hover{box-shadow:0 10px 30px rgba(0,200,150,.45)}
+.w-btn-attack{background:linear-gradient(135deg,#ff6b35,#ff4d4d);color:#fff;box-shadow:0 6px 20px rgba(255,77,77,.3)}
+.w-btn-attack:hover{box-shadow:0 10px 30px rgba(255,77,77,.45)}
+.target-list{display:grid;gap:8px;margin-top:.75rem}
+.target-btn{
+  padding:13px;border-radius:var(--r2);
+  font-family:var(--fn);font-size:14px;font-weight:600;cursor:pointer;
+  border:2px solid rgba(26,10,0,.1);
+  background:rgba(255,255,255,.8);color:var(--ink);
+  transition:all .18s;
+  display:flex;align-items:center;gap:10px;
+}
+.target-btn:hover{border-color:var(--coral);background:rgba(255,77,77,.06);transform:translateY(-2px)}
+.w-back{
+  background:none;border:none;color:var(--ink2);
+  font-family:var(--fn);font-size:13px;font-weight:600;cursor:pointer;
+  margin-top:.75rem;padding:4px;
+}
+.w-back:hover{color:var(--coral)}
+
+/* ══════════════════════════════════
+   MISC UTILITIES
+══════════════════════════════════ */
+/* ══════════════════════════════════
+   ANSWERING OVERLAY
+══════════════════════════════════ */
+#answering-overlay{
+  position:fixed;inset:0;z-index:400;
+  display:none;
+  align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+#answering-overlay.visible{display:flex}
+.ans-ov-bg{
+  position:absolute;inset:0;
+  background:rgba(253,246,238,.9);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.ans-ov-body{
+  position:relative;z-index:2;
+  text-align:center;
+  animation:screenIn .4s cubic-bezier(.34,1.4,.64,1);
+  max-width:340px;width:100%;
+}
+/* Avatar + ring timer combined */
+.ans-ov-ring-wrap{
+  position:relative;
+  width:110px;height:110px;
+  margin:0 auto 1.25rem;
+}
+.ans-ov-ring-svg{
+  position:absolute;inset:0;
+  transform:rotate(-90deg);
+}
+.ans-ov-avatar{
+  position:absolute;inset:8px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;font-weight:800;
+}
+.ans-ov-name{
+  font-size:24px;font-weight:700;letter-spacing:-.5px;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.3rem;direction:ltr;
+}
+.ans-ov-label{
+  font-size:14px;font-weight:500;color:var(--ink2);
+  direction:ltr;margin-bottom:1.25rem;
+}
+.ans-ov-timer-num{
+  position:absolute;
+  bottom:-10px;left:50%;transform:translateX(-50%);
+  font-family:var(--fe);font-size:13px;font-weight:700;
+  color:var(--violet);
+  background:rgba(255,255,255,.95);
+  border:2px solid rgba(124,58,237,.2);
+  border-radius:20px;padding:2px 10px;
+  white-space:nowrap;
+  box-shadow:0 2px 8px rgba(124,58,237,.15);
+}
+.ans-ov-choices{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.ans-ov-choice{
+  padding:12px 10px;
+  background:rgba(255,255,255,.6);
+  border:1.5px solid rgba(26,10,0,.08);
+  border-radius:var(--r2);
+  font-size:13px;font-weight:600;color:rgba(26,10,0,.3);
+  text-align:center;
+  backdrop-filter:blur(4px);
+}
+
+.q-count-badge{
+  display:inline-block;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.7);border:1.5px solid rgba(26,10,0,.08);
+  border-radius:20px;padding:3px 10px;margin-top:6px;color:var(--ink2);
+}
+</style>
+</head>
+<body>
+<div class="orb3"></div>
+<div class="app">
+
+<div class="screen active" id="s-home">
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-live-dot"></span>
+      Live Multiplayer Quiz
+    </div>
+    <div class="hero-title" style="direction:ltr">Buzzer</div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hs-val">495</div>
+        <div class="hs-lbl">Questions</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hs-val">⚔️</div>
+        <div class="hs-lbl">Weapons</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hs-val">🤖</div>
+        <div class="hs-lbl">AI Powered</div>
+      </div>
+    </div>
+  </div>
+  <div class="home-choices">
+    <button class="home-choice home-choice-create" onclick="showFlow('create')">
+      <div class="hc-icon-wrap">🎮</div>
+      <div>
+        <div class="hc-title" style="direction:ltr">Create Room</div>
+        <div class="hc-sub" style="direction:ltr">Host a game</div>
+      </div>
+    </button>
+    <button class="home-choice home-choice-join" onclick="showFlow('join')">
+      <div class="hc-icon-wrap">🔗</div>
+      <div>
+        <div class="hc-title" style="direction:ltr">Join with Code</div>
+        <div class="hc-sub" style="direction:ltr">Enter a room</div>
+      </div>
+    </button>
+  </div>
+  <div style="text-align:center;margin-top:2rem;direction:ltr">
+    <span style="font-size:12px;color:var(--ink3);font-weight:500;letter-spacing:.3px">made by </span><span style="font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--coral),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.2px">Ach2ouch</span>
+  </div>
+</div>
+
+<!-- CREATE FLOW MODAL -->
+<div id="flow-create" class="flow-modal" style="display:none">
+  <div class="flow-backdrop" onclick="hideFlow()"></div>
+  <div class="flow-card">
+    <button class="flow-back" onclick="hideFlow()">← Back</button>
+    <h2 style="margin-bottom:1.25rem;direction:ltr">Create a Room</h2>
+    <div class="label" style="direction:ltr;text-align:left">Your display name</div>
+    <input type="text" id="inp-name-create" placeholder="Enter your name..." maxlength="20" autocomplete="off" style="direction:ltr;text-align:left">
+    <div class="div"></div>
+    <div class="setting-label">Choose Topics</div>
+    <div class="subj-grid" id="subj-grid"></div>
+    <div class="div"></div>
+    <div class="setting-row">
+      <div class="setting-label">🎯 Point Goal</div>
+      <div class="pill-group" id="pills-goal">
+        <div class="pill" data-val="5" onclick="selectPill('pills-goal',this,5,'goal')">5 pts</div>
+        <div class="pill active" data-val="10" onclick="selectPill('pills-goal',this,10,'goal')">10 pts</div>
+        <div class="pill" data-val="15" onclick="selectPill('pills-goal',this,15,'goal')">15 pts</div>
+        <div class="pill" data-val="20" onclick="selectPill('pills-goal',this,20,'goal')">20 pts</div>
+      </div>
+    </div>
+    <div class="setting-row" style="margin-top:.75rem">
+      <div class="setting-label">⏱ Buzzer Wait Time</div>
+      <div class="pill-group" id="pills-buzz">
+        <div class="pill" data-val="5" onclick="selectPill('pills-buzz',this,5,'buzz')">5 sec</div>
+        <div class="pill active" data-val="10" onclick="selectPill('pills-buzz',this,10,'buzz')">10 sec</div>
+        <div class="pill" data-val="15" onclick="selectPill('pills-buzz',this,15,'buzz')">15 sec</div>
+      </div>
+    </div>
+    <button class="btn btn-coral" id="btn-create-room" onclick="createRoom()" style="margin-top:1rem">✨ Create Room</button>
+  </div>
+</div>
+
+<!-- JOIN FLOW MODAL -->
+<div id="flow-join" class="flow-modal" style="display:none">
+  <div class="flow-backdrop" onclick="hideFlow()"></div>
+  <div class="flow-card">
+    <button class="flow-back" onclick="hideFlow()">← Back</button>
+    <h2 style="margin-bottom:1.25rem;direction:ltr">Join a Room</h2>
+    <div class="label" style="direction:ltr;text-align:left">Your display name</div>
+    <input type="text" id="inp-name-join" placeholder="Enter your name..." maxlength="20" autocomplete="off" style="direction:ltr;text-align:left">
+    <div class="label" style="direction:ltr;text-align:left;margin-top:1rem">Room Code</div>
+    <input type="text" id="inp-code" placeholder="AB12" maxlength="4" style="font-size:28px;letter-spacing:10px;text-align:center;text-transform:uppercase;font-family:var(--fe);direction:ltr">
+    <button class="btn btn-cyan" id="btn-join-room" onclick="joinRoom()" style="margin-top:1rem">Join Now 🚀</button>
+  </div>
+</div>
+
+<div class="screen" id="s-lobby">
+  <div class="card" style="direction:ltr;text-align:left">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+      <h2 style="margin:0">Waiting Room</h2>
+      <span class="status-row"><span class="dot-live"></span>Live</span>
+    </div>
+    <div class="label">Share this code with your friends</div>
+    <div class="room-code" id="lob-code">------</div>
+    <div id="lob-bot-btn">
+      <button class="btn" onclick="addBot()" style="font-size:13px;margin-bottom:8px">🤖 Add Bot</button>
+    </div>
+    <div id="lob-players"></div>
+    <div class="div"></div>
+    <button class="btn btn-mint" id="lob-start-btn" onclick="startGame()" style="display:none">▶ Start Game</button>
+    <p id="lob-msg" style="font-size:13px;color:var(--ink2);text-align:left;margin-top:8px;font-weight:500"></p>
+  </div>
+  <div class="card-sm" style="direction:ltr;text-align:left">
+    <span style="font-size:12px;font-weight:600;color:var(--ink2)">Topics: <span id="lob-subjects" style="color:var(--coral)"></span></span>
+  </div>
+</div>
+
+<div class="screen" id="s-game">
+  <div class="g-header">
+    <span class="g-qnum-badge" id="g-qnum">Q1</span>
+    <span class="g-subj-badge" id="g-subj"></span>
+    <span class="g-score-badge" id="g-myscore">My Score: 0</span>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="g-progbar"></div></div>
+  <div class="phase-box" id="g-phase">Press the Buzzer! 🔔</div>
+  <div class="q-box" id="g-question">...</div>
+  <div id="g-buzz-area">
+    <div class="buzzer-wrap">
+      <button class="buzzer-btn" id="g-buzzer" onclick="pressBuzzer()">
+        <span class="bz-icon">🔔</span>
+        <span style="direction:ltr;unicode-bidi:embed">Buzz!</span>
+      </button>
+    </div>
+    <div class="attempt-label" id="g-my-attempts" style="text-align:center;font-size:12px;font-weight:600;color:var(--ink2)"></div>
+  </div>
+  <div id="g-answer-area" style="display:none">
+    <div style="display:flex;justify-content:center;margin-bottom:.75rem">
+      <div style="position:relative;width:60px;height:60px">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(26,10,0,.08)" stroke-width="5"/>
+          <circle id="g-cring-arc" cx="30" cy="30" r="26" fill="none" stroke="var(--violet)" stroke-width="5"
+            stroke-dasharray="163.4" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <div id="g-cring-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--violet);font-family:var(--fe)">10</div>
+      </div>
+    </div>
+    <div class="ans-opts" id="g-ans-opts"></div>
+    <div class="waiting-ans" id="g-wait-ans" style="display:none">
+      <span>⏳ <span id="g-buzzer-name" style="color:var(--violet);font-weight:700"></span> is answering...</span>
+    </div>
+    <div id="g-correct-reveal" style="display:none;margin-top:.75rem">
+      <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:6px;text-align:center">✅ Correct Answer</div>
+      <div id="g-correct-answer-text"></div>
+    </div>
+  </div>
+  <div class="scoreboard" id="g-scoreboard" style="margin-top:1rem"></div>
+</div>
+
+<div class="screen" id="s-result" style="display:none"></div>
+
+<!-- COUNTDOWN OVERLAY -->
+<div id="countdown-overlay" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;flex-direction:column">
+  <div style="position:absolute;inset:0;background:rgba(253,246,238,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)"></div>
+  <div id="countdown-number" style="position:relative;z-index:2;font-family:var(--fe);font-size:140px;font-weight:700;line-height:1;text-align:center;direction:ltr"></div>
+  <div id="countdown-label" style="position:relative;z-index:2;font-size:20px;font-weight:600;color:var(--ink2);margin-top:.5rem;direction:ltr"></div>
+</div>
+
+<!-- ATTACK ANIMATION OVERLAY -->
+<div id="attack-overlay" style="display:none">
+  <div class="atk-backdrop"></div>
+  <div class="atk-rings" id="atk-rings"></div>
+  <div class="atk-scene">
+    <div class="atk-headline">⚔️ &nbsp; ATTACK &nbsp; ⚔️</div>
+    <div class="atk-vs-row">
+      <div class="atk-card attacker">
+        <div class="atk-av-wrap">
+          <div class="atk-avatar is-attacker" id="atk-av-from"></div>
+          <div class="atk-crown">👑</div>
+        </div>
+        <div class="atk-pname" id="atk-name-from"></div>
+        <div class="atk-badge atk">Attacker</div>
+      </div>
+      <div class="atk-mid">
+        <div class="atk-weapon-icon">⚔️</div>
+        <div class="atk-impact-txt">BOOM!</div>
+      </div>
+      <div class="atk-card victim">
+        <div class="atk-av-wrap">
+          <div class="atk-avatar is-victim" id="atk-av-to"></div>
+        </div>
+        <div class="atk-pname" id="atk-name-to"></div>
+        <div class="atk-badge vic">Target</div>
+      </div>
+    </div>
+    <div class="atk-minus-wrap">
+      <div class="atk-minus-num">-1</div>
+    </div>
+    <div class="atk-sub" id="atk-sub"></div>
+  </div>
+</div>
+
+<!-- ANSWERING OVERLAY — shown to non-buzzer players -->
+<div id="answering-overlay">
+  <div class="ans-ov-bg"></div>
+  <div class="ans-ov-body">
+    <div class="ans-ov-ring-wrap">
+      <svg class="ans-ov-ring-svg" viewBox="0 0 110 110" width="110" height="110">
+        <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(124,58,237,.1)" stroke-width="6"/>
+        <circle id="ans-ov-arc" cx="55" cy="55" r="48" fill="none" stroke="url(#ovGrad)" stroke-width="6"
+          stroke-dasharray="301.6" stroke-dashoffset="0" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="ovGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ans-ov-avatar" id="ans-ov-avatar"></div>
+      <div class="ans-ov-timer-num" id="ans-ov-timer">10s</div>
+    </div>
+    <div class="ans-ov-name" id="ans-ov-name"></div>
+    <div class="ans-ov-label">is answering...</div>
+    <div class="ans-ov-choices" id="ans-ov-choices"></div>
+  </div>
+</div>
+
+<!-- POST-QUESTION SCOREBOARD -->
+<div class="qscore-overlay" id="qscore-overlay" style="display:none">
+  <div class="qscore-card">
+    <div class="qscore-title" id="qscore-title">📊 Standings after this question</div>
+    <div id="qscore-list"></div>
+    <div class="next-countdown">
+      <span>Next question in</span>
+      <div class="next-circle" id="next-circle">4</div>
+      <span>seconds</span>
+    </div>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="win-overlay" style="display:none">
+  <canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+  <div class="win-card" id="win-card">
+    <span class="win-trophy">🏆</span>
+    <div class="win-name" id="win-name"></div>
+    <div class="win-sub" id="win-sub"></div>
+    <div class="win-podium" id="win-podium"></div>
+    <div class="win-final-list" id="win-final-list"></div>
+    <div id="win-host-ctrl" style="display:none">
+      <div style="font-size:13px;color:var(--ink2);font-weight:600;margin-bottom:.5rem;text-align:center">Choose topics for the next round</div>
+      <div class="replay-subj-grid" id="replay-subj-grid"></div>
+      <button class="btn btn-coral" onclick="hostRestart()" style="margin-top:10px">🔄 New Round!</button>
+      <button class="btn" onclick="hostGoHome()" style="margin-top:8px">🚪 Exit</button>
+    </div>
+    <div id="win-guest-ctrl" style="display:none">
+      <div style="font-size:13px;color:var(--ink2);font-weight:500;text-align:center;padding:.75rem 0">⏳ Waiting for host...</div>
+      <button class="btn" onclick="show('s-home')" style="margin-top:8px">🚪 Exit</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEAPON OVERLAY -->
+<div class="weapon-overlay" id="wpn-overlay" style="display:none">
+  <div class="weapon-card">
+    <div id="wpn-phase-choose">
+      <div style="font-size:40px;margin-bottom:8px">⚔️</div>
+      <div class="weapon-title">Correct! Choose your reward</div>
+      <div class="weapon-timer" id="wpn-countdown">10</div>
+      <div class="weapon-prog"><div class="weapon-prog-bar" id="wpn-prog-bar"></div></div>
+      <p style="font-size:12px;color:var(--ink2);font-weight:500;margin-bottom:.75rem">You have one weapon — use it wisely!</p>
+      <div class="weapon-btns">
+        <button class="w-btn w-btn-point" onclick="weaponChoosePoint()">
+          <div style="font-size:24px">✅</div>
+          <div>+1 Point</div>
+          <div style="font-size:11px;opacity:.8">Safe & certain</div>
+        </button>
+        <button class="w-btn w-btn-attack" onclick="weaponChooseAttack()">
+          <div style="font-size:24px">⚔️</div>
+          <div>Use Weapon</div>
+          <div style="font-size:11px;opacity:.8">-1 to opponent</div>
+        </button>
+      </div>
+    </div>
+    <div id="wpn-phase-target" style="display:none">
+      <div style="font-size:40px;margin-bottom:8px">🎯</div>
+      <div class="weapon-title">Choose your target</div>
+      <div class="target-list" id="wpn-target-list"></div>
+      <button class="w-back" onclick="weaponBackToChoice()">← Back</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-database-compat.min.js"></script>
+<script>
+const LOCAL_Q={
+
+/* ══ SPORT: 65 questions ══ */
+sport:[
+  {q:"كم هدفاً سجّل ميروسلاف كلوزه في كأس العالم طوال مسيرته؟",a:["16","14","15","13"],c:0},
+  {q:"في أي عام فاز ريال مدريد بأول لقب لدوري أبطال أوروبا؟",a:["1956","1960","1952","1964"],c:0},
+  {q:"من هو أصغر لاعب يسجّل هدفاً في تاريخ كأس العالم؟",a:["بيليه","كيليان مبابي","ليونيل ميسي","مايكل أوين"],c:0},
+  {q:"كم مرة فاز نوفاك جوكوفيتش ببطولة ويمبلدون حتى نهاية 2023؟",a:["7","6","8","5"],c:0},
+  {q:"ما هو الرقم القياسي العالمي في 100 متر عدو ليوسان بولت بالثانية؟",a:["9.58","9.63","9.69","9.72"],c:0},
+  {q:"في أي نادٍ لعب زيدان قبل انتقاله لريال مدريد؟",a:["يوفنتوس","بوردو","مرسيليا","بايرن ميونيخ"],c:0},
+  {q:"كم مرة توّج لويس هاميلتون ببطولة فورمولا 1؟",a:["7","6","5","8"],c:0},
+  {q:"من هو الملاكم الذي هزم مايك تايسون في 1990 في أكبر مفاجأة في تاريخ الملاكمة؟",a:["بوستر دوغلاس","إيفاندر هوليفيلد","لاري هولمز","ريدريك لويس"],c:0},
+  {q:"كم هدفاً سجّل ليونيل ميسي في موسم 2011-2012 مع برشلونة (الرقم القياسي)؟",a:["91","85","73","79"],c:0},
+  {q:"من فاز ببطولة كأس أمم أفريقيا 2023؟",a:["ساحل العاج","نيجيريا","المغرب","كاب فيردي"],c:0},
+  {q:"ما هو اسم الملعب الذي استضاف نهائي كأس العالم 2022؟",a:["ملعب لوسيل","ملعب البيت","الثمامة","Ahmad Bin Ali"],c:0},
+  {q:"كم مرة فاز مانشستر سيتي بدوري الأبطال حتى 2023؟",a:["1","2","0","3"],c:0},
+  {q:"من هو أكثر لاعب في التاريخ حيازةً لكأس الأمم الأفريقية كلاعب؟",a:["أحمد حسن","ديدييه دروغبا","صامويل إيتو","لوران بلان"],c:0},
+  {q:"ما هي بطولة التنس الوحيدة التي لم يفز بها روجر فيدرر على الأقل مرة؟",a:["يو إس أوبن لا – فاز بها. البطولة التي لم يفز بها هي بطولة فرنسا المفتوحة","ويمبلدون","أستراليا المفتوحة","بطولة فرنسا المفتوحة"],c:3},
+  {q:"في أي موسم سجّل كريستيانو رونالدو 17 هدفاً في دوري أبطال أوروبا (الرقم القياسي)؟",a:["2013-2014","2015-2016","2011-2012","2017-2018"],c:0},
+  {q:"من هو المدرب الأكثر فوزاً في تاريخ دوري الأبطال؟",a:["كارلو أنشيلوتي","زين الدين زيدان","أليكس فيرغسون","جوارديولا"],c:0},
+  {q:"ما هو الرقم القياسي لعدد الأهداف في موسم واحد من الدوري الإنجليزي الممتاز؟",a:["34","32","36","30"],c:0},
+  {q:"من هو الفائز بجائزة الكرة الذهبية 2023؟",a:["ليونيل ميسي","إيرلينج هالاند","كيليان مبابي","فينيسيوس جونيور"],c:0},
+  {q:"في أي عام تأسس نادي يوفنتوس الإيطالي؟",a:["1897","1900","1905","1892"],c:0},
+  {q:"من هو حارس المرمى الذي يُعتبر الأفضل تاريخياً بشكل عام بحسب معظم التصنيفات؟",a:["ليف ياشين","أوليفر كان","مانويل نوير","جيانلويجي بوفون"],c:0},
+  {q:"ما هو الدوري الذي يُعتبر الأعلى قيمةً تسويقية في العالم؟",a:["الدوري الإنجليزي الممتاز","الليغا الإسبانية","الدوري الأمريكي NBA","الدوري الألماني"],c:0},
+  {q:"كم ذهبية فازت بها الولايات المتحدة في أولمبياد طوكيو 2020؟",a:["39","36","41","33"],c:0},
+  {q:"من سجّل هدف النصر في نهائي كأس العالم 2010؟",a:["أندريس إنييستا","زاوي","فيلا","تورس"],c:0},
+  {q:"في أي عام كسب محمد علي لقب بطل العالم للمرة الأولى؟",a:["1964","1960","1967","1970"],c:0},
+  {q:"كم مرة استضافت البرازيل كأس العالم لكرة القدم؟",a:["2","1","3","4"],c:0},
+  {q:"من هو أكثر لاعب تتويجاً بدوري الأبطال في التاريخ؟",a:["كريستيانو رونالدو","كارلوس","زيدان","مارسيلو"],c:0},
+  {q:"ما هو اسم الجائزة الممنوحة لأفضل لاعب شاب في كأس العالم؟",a:["جائزة أفضل لاعب شاب","الكرة الذهبية الصغيرة","جائزة يافاي","القفاز الذهبي"],c:0},
+  {q:"في أي ولاية أمريكية يلعب فريق الـ NFL كانساس سيتي تشيفس؟",a:["ميزوري","كانساس","تكساس","أوهايو"],c:0},
+  {q:"كم سنة استغرق مايكل شوماخر للفوز ببطولة فورمولا 1 للمرة الأولى؟",a:["3 مواسم (1991-1994)","5 مواسم","2 مواسم","7 مواسم"],c:0},
+  {q:"من هو أول لاعب عربي يلعب في الدوري الإنجليزي الممتاز؟",a:["يوسف المبارك (كانتونا كان فرنسياً)","محمد صلاح","أيمن عبد العزيز","حسن العبدلي"],c:3},
+  {q:"ما هو سجل عدد النقاط في موسم واحد من الدوري الإسباني؟",a:["100 نقطة","97","95","98"],c:0},
+  {q:"من هو المدرب الذي قاد ليستر سيتي لحصد لقب الدوري الإنجليزي 2015-2016؟",a:["كلاوديو رانييري","براندان رودجرز","نايجل بيرسون","كريغ شكسبير"],c:0},
+  {q:"كم هدفاً سجّلت المنتخبات في كأس العالم 2022 بالمجموع؟",a:["172","156","180","164"],c:0},
+  {q:"في أي عام حطّم يوسان بولت الرقم القياسي العالمي في 100 م للمرة الأولى؟",a:["2008","2009","2007","2010"],c:0},
+  {q:"ما هو أطول إيقاف في تاريخ كرة القدم الدولية؟",a:["8 سنوات (كانتونا - لا، الإيقاف الأطول كان لنيكولاس أنيلكا)","2 سنة","5 سنوات","3 سنوات"],c:3},
+  {q:"من هو لاعب التنس صاحب أكبر عدد من الإيسيس (آسس) في التاريخ؟",a:["إيفو كارلوفيتش","جون إيزنر","روجر فيدرر","غوران إيفانيسيفيتش"],c:0},
+  {q:"كم دولة شاركت في كأس العالم 2022 بقطر؟",a:["32","48","24","36"],c:0},
+  {q:"من هو أول لاعب يفوز بكأس العالم مرتين كأفضل لاعب في البطولة؟",a:["لم يحدث ذلك بعد","ديلا فاي","غاريناشا","رونالدو"],c:0},
+  {q:"في أي بطولة قدّم مارادونا 'هدف القرن' 1986؟",a:["ضد إنجلترا في ربع النهائي","ضد البلجيك","ضد ألمانيا الغربية في النهائي","ضد الاتحاد السوفيتي"],c:0},
+  {q:"كم بلغت قيمة انتقال نيمار من برشلونة لباريس سان جيرمان؟",a:["222 مليون يورو","200 مليون","180 مليون","250 مليون"],c:0},
+  {q:"من هو الفائز بأكثر ألقاب الغراند سلام في تاريخ كرة التنس النسائية؟",a:["سيرينا ويليامز","مارغريت سميث","شتيفي غراف","نافراتيلوفا"],c:0},
+  {q:"ما هو الدوري الذي يلعب فيه فريق الإنتر ميامي؟",a:["MLS","NWSL","USL","MSL"],c:0},
+  {q:"كم مرة فاز الأرجنتيني خوان مارتين ديل بوترو ببطولة غراند سلام؟",a:["1","2","3","0"],c:0},
+  {q:"من هو أول حارس مرمى يفوز بجائزة الكرة الذهبية؟",a:["لم يفز حارس مرمى بها قط","ليف ياشين","بوفون","أوليفر كان"],c:0},
+  {q:"في أي عام استضافت اليابان وكوريا الجنوبية كأس العالم؟",a:["2002","1998","2006","2010"],c:0},
+  {q:"كم ميدالية ذهبية أولمبية فازت بها بلغاريا في رفع الأثقال تاريخياً؟",a:["12","9","15","7"],c:0},
+  {q:"من هو الأب والابن الذين لعبا معاً في نفس الدوري في تاريخ كرة القدم؟",a:["أرفيد هاالاند وإيرلينج هاالاند","براين روبسون وبنيامين","بيتر شيلتون وستيف","بوبي تشارلتون وأخيه جاك"],c:0},
+  {q:"ما هو أكثر نادٍ حيازةً للدوري الإيطالي سيري آ في التاريخ؟",a:["يوفنتوس","إنتر ميلانو","AC ميلان","فيورنتينا"],c:0},
+  {q:"كم جولة في دوري الفورمولا 1 موسم 2023؟",a:["23","22","20","24"],c:0},
+  {q:"من هو أول أفريقي يفوز ببطولة روبان دور في التنس (Wimbledon/Roland Garros)؟",a:["لم يفز أفريقي بالروبان الذهبي بعد","ديكو","غيل سيمون","مولر"],c:0},
+  {q:"ما هو الرقم القياسي لعدد المشاركين في سباق ماراثون لندن في عام واحد؟",a:["فوق 40,000 لاعب","25,000","35,000","50,000"],c:0},
+  {q:"من هو مدرب ليفربول الذي أعاد النادي لقمة أوروبا في 2019؟",a:["يورغن كلوب","برينيدان رودجرز","رافاييل بينيتيز","روي إيفانز"],c:0},
+  {q:"ما هو اسم النظام التكتيكي الذي طوّره يوهان كرويف؟",a:["الكرة الكاملة (توتال فوتبول)","كاتناتشيو","تيكي-تاكا","فالس 9"],c:0},
+  {q:"كم مرة فازت إسبانيا ببطولة أمم أوروبا (يورو)؟",a:["3","2","4","1"],c:0},
+  {q:"من هو أكثر مدرب فوزاً في تاريخ الدوري الإنجليزي الممتاز؟",a:["أليكس فيرغسون","جوارديولا","آرسين فينغر","جوزيه مورينيو"],c:0},
+  {q:"في أي جولة يُطرد اللاعب في كرة القدم إذا تلقى بطاقتين صفراوين؟",a:["في نفس المباراة","في موسم واحد","في 3 مباريات","في الجولة التالية"],c:0},
+  {q:"كم طولاً بلغ إيرلينج هاالاند عند ولادته تقريباً؟",a:["سؤال مضلل، ما نعرفه أنه 194 سم حالياً","170 سم","180 سم","185 سم"],c:0},
+  {q:"من هو صاحب الرقم القياسي في عدد التسديدات الموصوفة بـ hat-trick أسرع في تاريخ الدوري الإنجليزي؟",a:["سادير آني - 2:56 دقائق","مايكل أوين","روبي فاولر","ثيو والكوت"],c:0},
+  {q:"ما هو أسرع هدف في تاريخ كأس العالم؟",a:["هدف هاكان شوكور في 11 ثانية 2002","روبي فاولر في 4.6 ثانية","إينييستا","مارادونا"],c:0},
+  {q:"من هو الرياضي الذي فاز بأكبر عدد من الميداليات الذهبية الأولمبية في تاريخ الألعاب؟",a:["مايكل فيلبس","أوسين بولت","ماريت بيورغن","لاريسا لاتينينا"],c:0},
+  {q:"ما اسم الجائزة الممنوحة لأفضل حارس مرمى في كأس العالم؟",a:["القفاز الذهبي","الكرة الذهبية","الحذاء الذهبي","جائزة ياشين"],c:0},
+  {q:"في أي عام أُسست بطولة UEFA للأندية البطلة (دوري الأبطال) بشكلها الحالي؟",a:["1992","1985","1988","1995"],c:0},
+  {q:"كم مرة حمل بايرن ميونيخ لقب الدوري الألماني بوندسليغا متتالياً (الرقم القياسي)؟",a:["11","9","7","13"],c:0},
+  {q:"من هو لاعب الفورمولا 1 الذي قاد للفوز أكثر سباق في موسم واحد؟",a:["ماكس فيرستابن 2023 (19 فوزاً)","شوماخر","هاميلتون","سينا"],c:0},
+  {q:"ما هو النادي الذي فاز بأول بطولة كرة سلة NBA عام 1947؟",a:["فيلادلفيا ووريورز","بوسطن سيلتيكس","نيويورك نيكس","لوس أنجلوس ليكرز"],c:0},
+],
+
+/* ══ HISTORY: 60 questions ══ */
+history:[
+  {q:"في أي سنة فتح المسلمون الأندلس؟",a:["711م","632م","750م","800م"],c:0},
+  {q:"متى انتهت الحرب العالمية الثانية؟",a:["1945","1918","1939","1950"],c:0},
+  {q:"من هو أول خليفة للمسلمين بعد النبي ﷺ؟",a:["أبو بكر الصديق","عمر بن الخطاب","عثمان","علي"],c:0},
+  {q:"في أي عام بدأت الثورة الفرنسية؟",a:["1789","1776","1800","1815"],c:0},
+  {q:"من فتح القسطنطينية عام 1453م؟",a:["محمد الفاتح","صلاح الدين","طارق بن زياد","السلطان سليم"],c:0},
+  {q:"متى بدأت الحرب العالمية الأولى؟",a:["1914","1918","1900","1910"],c:0},
+  {q:"ما هو عام استقلال تونس؟",a:["1956","1960","1962","1952"],c:0},
+  {q:"من هو قائد معركة اليرموك؟",a:["خالد بن الوليد","أبو عبيدة","عمرو بن العاص","سعد بن أبي وقاص"],c:0},
+  {q:"ما هي عاصمة الخلافة العباسية؟",a:["بغداد","دمشق","القاهرة","الكوفة"],c:0},
+  {q:"في أي سنة أُسس الاتحاد الأوروبي رسمياً بمعاهدة ماستريخت؟",a:["1993","1957","1980","2000"],c:0},
+  {q:"متى أُعلن استقلال الجزائر؟",a:["1962","1956","1958","1965"],c:0},
+  {q:"من هو مؤسس الإمبراطورية المغولية؟",a:["جنكيز خان","تيمور لنك","هولاكو","قبلاي خان"],c:0},
+  {q:"في أي سنة سقط الاتحاد السوفيتي؟",a:["1991","1985","1989","1993"],c:0},
+  {q:"من هو أول رئيس لجمهورية مصر العربية؟",a:["محمد نجيب","جمال عبد الناصر","أنور السادات","حسني مبارك"],c:0},
+  {q:"متى كانت غزوة بدر؟",a:["624م","622م","630م","628م"],c:0},
+  {q:"من اكتشف أمريكا عام 1492؟",a:["كريستوف كولومبس","أمريغو فيسبوتشي","فاسكو دي غاما","فرناندو ماجلان"],c:0},
+  {q:"ما هو الاسم الأصلي لدولة زيمبابوي في عهد الاستعمار؟",a:["روديسيا","نياسالاند","بيتشوانالاند","نورثرن روديسيا"],c:0},
+  {q:"في أي سنة أُنجزت قناة السويس؟",a:["1869","1859","1880","1900"],c:0},
+  {q:"من هو أول رئيس للولايات المتحدة الأمريكية؟",a:["جورج واشنطن","توماس جيفرسون","بنجامين فرانكلين","جون آدامز"],c:0},
+  {q:"متى كانت ثورة أكتوبر الروسية؟",a:["1917","1905","1920","1914"],c:0},
+  {q:"من هو صاحب الماغنا كارتا الشهيرة؟",a:["الملك جون","هنري الثامن","ريتشارد الأول","إدوارد الأول"],c:0},
+  {q:"في أي سنة استقلت الهند عن بريطانيا؟",a:["1947","1945","1950","1948"],c:0},
+  {q:"من هو قائد ثورة البلاشفة في روسيا؟",a:["لينين","ستالين","تروتسكي","كيرينسكي"],c:0},
+  {q:"في أي سنة بدأت الحرب الأهلية الأمريكية؟",a:["1861","1776","1812","1848"],c:0},
+  {q:"من كان آخر ملوك مصر الفراعنة؟",a:["كليوباترا السابعة","رمسيس الثاني","توت عنخ آمون","أحمس"],c:0},
+  {q:"متى كانت معركة حطين؟",a:["1187م","1099م","1291م","1148م"],c:0},
+  {q:"من هو صاحب مقولة 'أنا الدولة'؟",a:["لويس الرابع عشر","نابليون","شارل الخامس","هنري الرابع"],c:0},
+  {q:"في أي سنة وُقّعت معاهدة وستفاليا التي أنهت حرب الثلاثين عاماً؟",a:["1648","1618","1700","1560"],c:0},
+  {q:"ما هو الاسم القديم للعراق؟",a:["بلاد الرافدين","فارس","بلاد الشام","الحبشة"],c:0},
+  {q:"من هو أول إنسان يصل للقمر؟",a:["نيل أرمسترونغ","باز ألدرين","يوري غاغارين","أليكسي ليونوف"],c:0},
+  {q:"في أي سنة بنى الرومان سور هادريان في بريطانيا؟",a:["122م","43م","55م","180م"],c:0},
+  {q:"من أسس مدينة الإسكندرية؟",a:["الإسكندر المقدوني","بطليموس","يوليوس قيصر","أوكتافيوس"],c:0},
+  {q:"في أي سنة فُتحت مكة المكرمة؟",a:["630م","625م","628م","620م"],c:0},
+  {q:"ما هو عام وفاة نابليون بونابرت؟",a:["1821","1815","1830","1810"],c:0},
+  {q:"من هو مؤسس الدولة العثمانية؟",a:["عثمان الأول","أورخان","مراد الأول","بايزيد الأول"],c:0},
+  {q:"في أي سنة صدر إعلان استقلال الولايات المتحدة؟",a:["1776","1787","1783","1765"],c:0},
+  {q:"ما هي أقدم حضارة في التاريخ؟",a:["السومرية","المصرية","الصينية","الهندية"],c:0},
+  {q:"متى استقلت المغرب عن فرنسا؟",a:["1956","1958","1962","1960"],c:0},
+  {q:"من هو قائد معركة القادسية ضد الفرس؟",a:["سعد بن أبي وقاص","خالد بن الوليد","عمرو بن العاص","المثنى بن حارثة"],c:0},
+  {q:"في أي سنة هاجر النبي ﷺ من مكة إلى المدينة؟",a:["622م","615م","630م","610م"],c:0},
+  {q:"من هو مؤسس الدولة السعودية الحديثة؟",a:["الملك عبد العزيز آل سعود","الملك سعود","الملك فيصل","الملك خالد"],c:0},
+  {q:"في أي دولة كانت ثورة 1979 الشهيرة؟",a:["إيران","أفغانستان","العراق","باكستان"],c:0},
+  {q:"من اغتال يوليوس قيصر؟",a:["بروتوس وكاسيوس","أوكتافيوس","أنطونيوس","كليوباترا"],c:0},
+  {q:"في أي سنة تأسست الأمم المتحدة؟",a:["1945","1919","1946","1944"],c:0},
+  {q:"ما هو الاسم الأصلي لإسطنبول؟",a:["القسطنطينية","بيزنطة","أنقرة","قرطاجة"],c:0},
+  {q:"من هو أشهر أطباء العصور الوسطى الإسلامية؟",a:["ابن سينا","ابن رشد","الرازي","الفارابي"],c:0},
+  {q:"في أي سنة نال نيلسون مانديلا حريته بعد سجنه؟",a:["1990","1985","1994","1988"],c:0},
+  {q:"من هو مؤسس الإمبراطورية البيزنطية رسمياً؟",a:["قسطنطين الأول","ديوكلتيان","ثيودوسيوس","جستنيان"],c:0},
+  {q:"في أي سنة اخترع غوتنبرغ المطبعة؟",a:["1440م","1400م","1500م","1350م"],c:0},
+  {q:"ما هي أول جريمة منظمة في التاريخ المكتوب؟",a:["قابيل وهابيل","سرقة معبد","نزاع أرض","خيانة ملكية"],c:0},
+  {q:"في أي سنة أُسست مدينة روما تقليدياً؟",a:["753 ق.م","500 ق.م","1000 ق.م","200 ق.م"],c:0},
+  {q:"من هو مؤسس المذهب البروتستانتي؟",a:["مارتن لوثر","جان كالفان","هنري الثامن","إيراسموس"],c:0},
+  {q:"في أي قرن عاش صلاح الدين الأيوبي؟",a:["12م","11م","13م","10م"],c:0},
+  {q:"من كان ملك إنجلترا إبان الحرب العالمية الثانية؟",a:["جورج السادس","جورج الخامس","إدوارد الثامن","إليزابيث الثانية"],c:0},
+  {q:"ما هي أول دولة تمنح المرأة حق التصويت؟",a:["نيوزيلندا","أستراليا","فنلندا","السويد"],c:0},
+  {q:"من هو مؤسس الخلافة الفاطمية؟",a:["المهدي بالله","المعز لدين الله","العزيز بالله","الحاكم بأمر الله"],c:0},
+  {q:"في أي سنة أُعلنت وحدة اليمن؟",a:["1990","1967","1978","1994"],c:0},
+  {q:"من هو الإمبراطور الروماني الذي اعتنق المسيحية؟",a:["قسطنطين","ديوكلتيان","أوريليان","ماركوس أوريليوس"],c:0},
+  {q:"ما هو عام الثورة الروسية التي أطاحت بالقيصر؟",a:["1917","1905","1920","1914"],c:0},
+  {q:"من هو الفيلسوف اليوناني الذي قتلته أثينا بالسُّم؟",a:["سقراط","أفلاطون","أرسطو","هيرودوت"],c:0},
+  {q:"في أي سنة بدأت حرب فيتنام رسمياً بمشاركة أمريكية واسعة؟",a:["1965","1955","1960","1970"],c:0},
+],
+
+/* ══ GEO: 60 questions ══ */
+geo:[
+  {q:"ما هي عاصمة المغرب؟",a:["الرباط","الدار البيضاء","مراكش","فاس"],c:0},
+  {q:"ما هو أطول نهر في العالم؟",a:["النيل","الأمازون","المسيسيبي","السند"],c:0},
+  {q:"ما هو أكبر محيط في العالم؟",a:["الهادئ","الأطلسي","الهندي","المتجمد"],c:0},
+  {q:"ما هو أعلى جبل في العالم؟",a:["إيفرست","K2","كيليمانجارو","مونت بلان"],c:0},
+  {q:"ما هي أصغر دولة في العالم مساحةً؟",a:["الفاتيكان","موناكو","سان مارينو","ليشتنشتاين"],c:0},
+  {q:"ما هي عاصمة كندا؟",a:["أوتاوا","تورونتو","فانكوفر","مونتريال"],c:0},
+  {q:"ما هي أكبر صحراء في العالم؟",a:["الصحراء الكبرى","القطب الجنوبي","العربية","غوبي"],c:0},
+  {q:"في أي قارة تقع البرازيل؟",a:["أمريكا الجنوبية","أمريكا الشمالية","أفريقيا","آسيا"],c:0},
+  {q:"كم عدد قارات العالم؟",a:["7","5","6","8"],c:0},
+  {q:"ما هو خط الاستواء؟",a:["الخط الوهمي الذي يقسم الأرض إلى نصفين","نهر في أفريقيا","حد بين آسيا وأوروبا","قمة جبل"],c:0},
+  {q:"ما هي عاصمة أستراليا؟",a:["كانبيرا","سيدني","ملبورن","بريزبان"],c:0},
+  {q:"ما هي أطول سلسلة جبال في العالم؟",a:["الأنديز","الهيمالايا","الروكي","الألب"],c:0},
+  {q:"في أي قارة تقع نيجيريا؟",a:["أفريقيا","آسيا","أمريكا","أوروبا"],c:0},
+  {q:"ما هو البلد الذي يعبره نهر النيل مصباً؟",a:["مصر","السودان","إثيوبيا","أوغندا"],c:0},
+  {q:"ما هي عاصمة اليابان؟",a:["طوكيو","أوساكا","كيوتو","هيروشيما"],c:0},
+  {q:"ما هو أكبر بلد في العالم مساحةً؟",a:["روسيا","كندا","الصين","الولايات المتحدة"],c:0},
+  {q:"أي دولة تعتبر أكثر كثافة سكانية في العالم؟",a:["الهند","الصين","إندونيسيا","باكستان"],c:0},
+  {q:"ما هي عاصمة البرازيل؟",a:["برازيليا","ساو باولو","ريو دي جانيرو","سلفادور"],c:0},
+  {q:"ما هي أعمق بقعة في المحيطات؟",a:["خندق ماريانا","خندق بورتوريكو","خندق جاوة","خندق كيرماديك"],c:0},
+  {q:"ما هو الجبل البركاني الأكثر نشاطاً في العالم؟",a:["كيلاويا","فيزوف","إتنا","بيناتوبو"],c:0},
+  {q:"ما هي أكبر جزيرة في العالم؟",a:["غرينلاند","نيوغينيا","بورنيو","مدغشقر"],c:0},
+  {q:"ما هي عاصمة الأرجنتين؟",a:["بوينس آيريس","ريو دي جانيرو","مونتيفيديو","سانتياغو"],c:0},
+  {q:"أي قارة تُعتبر القطب الجنوبي؟",a:["أنتاركتيكا","أوقيانوسيا","آسيا","أفريقيا"],c:0},
+  {q:"ما هو اسم النهر الذي يمر عبر لندن؟",a:["نهر التيمز","نهر السين","نهر التايبر","نهر الراين"],c:0},
+  {q:"ما هي عاصمة الصين؟",a:["بكين","شنغهاي","هونغ كونغ","شنزن"],c:0},
+  {q:"كم عدد الدول التي تحدّ روسيا؟",a:["14","10","12","16"],c:0},
+  {q:"ما هو الاسم الرسمي لهولندا؟",a:["مملكة هولندا","هولندا","نيدرلاند","لو باي با"],c:0},
+  {q:"أي دولة تمتلك أكبر عدد من الجزر؟",a:["السويد","إندونيسيا","الفلبين","اليابان"],c:0},
+  {q:"ما هي عاصمة جنوب أفريقيا الإدارية؟",a:["بريتوريا","كيب تاون","جوهانسبرغ","ديربان"],c:0},
+  {q:"في أي قارة تقع تركيا جغرافياً بشكل رئيسي؟",a:["آسيا","أوروبا","في القارتين","أفريقيا"],c:0},
+  {q:"ما هو أكثر نهر جريان في العالم؟",a:["الأمازون","النيل","الكونغو","المسيسيبي"],c:0},
+  {q:"ما هي عاصمة نيوزيلندا؟",a:["ويلينغتون","أوكلاند","كرايستشيرش","دنيدن"],c:0},
+  {q:"ما هو اسم البحيرة الأكبر في أفريقيا؟",a:["فيكتوريا","تنغانيقا","نياسا","إدوارد"],c:0},
+  {q:"كم عدد الدول في قارة أمريكا الجنوبية؟",a:["12","10","14","8"],c:0},
+  {q:"ما هي عاصمة باكستان؟",a:["إسلام آباد","كراتشي","لاهور","بيشاور"],c:0},
+  {q:"ما هو أطول نفق في العالم؟",a:["نفق قاعدة سان غوتار","نفق المانش","نفق سيكان","نفق لاردال"],c:0},
+  {q:"في أي دولة يقع برج إيفل؟",a:["فرنسا","إيطاليا","إسبانيا","بلجيكا"],c:0},
+  {q:"ما هي أكبر مدينة في إفريقيا من حيث السكان؟",a:["لاغوس","القاهرة","كينشاسا","الجزائر"],c:0},
+  {q:"ما هو اسم الخليج الذي تطل عليه إيران والسعودية؟",a:["الخليج العربي","خليج عدن","البحر الأحمر","البحر العربي"],c:0},
+  {q:"أي مضيق يفصل أوروبا عن أفريقيا؟",a:["مضيق جبل طارق","مضيق باب المندب","مضيق هرمز","مضيق بوسفور"],c:0},
+  {q:"ما هي أعلى قمة في القارة الأفريقية؟",a:["كيليمانجارو","كينيا","رووينزوري","كاميرون"],c:0},
+  {q:"في أي دولة يقع نهر الأمازون في معظمه؟",a:["البرازيل","بيرو","كولومبيا","الإكوادور"],c:0},
+  {q:"ما هي عاصمة إندونيسيا الجديدة؟",a:["نوسانتارا","جاكرتا","سورابايا","باندونغ"],c:0},
+  {q:"كم عدد الدول الأعضاء في الاتحاد الأفريقي؟",a:["55","47","53","60"],c:0},
+  {q:"ما هو أكبر بحيرة في أمريكا الشمالية؟",a:["سوبيريور","هورون","ميشيغان","إيري"],c:0},
+  {q:"في أي دولة تقع أطول سكة حديد في العالم (سيبيريا)؟",a:["روسيا","الصين","الولايات المتحدة","كندا"],c:0},
+  {q:"ما هي عاصمة تشيلي؟",a:["سانتياغو","فالبارايسو","كونسبسيون","لا سيرينا"],c:0},
+  {q:"أي دولة يقع فيها نهر زامبيزي وشلالات فيكتوريا؟",a:["زامبيا وزيمبابوي","كينيا وتنزانيا","ناميبيا وبوتسوانا","أنغولا والكونغو"],c:0},
+  {q:"ما هو اسم البحيرة المالحة التي تحدها إسرائيل والأردن؟",a:["البحر الميت","بحيرة طبريا","البحر الأحمر","خليج العقبة"],c:0},
+  {q:"في أي قارة يقع معظم خط الاستواء؟",a:["أفريقيا","أمريكا الجنوبية","آسيا","أوقيانوسيا"],c:0},
+  {q:"ما هو اسم الجزيرة التي تضم دولتين مختلفتين؟",a:["هيسبانيولا","كوبا","بورتوريكو","جامايكا"],c:0},
+  {q:"ما هي أكبر دولة في أمريكا اللاتينية مساحةً؟",a:["البرازيل","الأرجنتين","المكسيك","البيرو"],c:0},
+  {q:"ما هي أحدث دولة في العالم انفصلت رسمياً؟",a:["جنوب السودان","كوسوفو","تيمور الشرقية","الجبل الأسود"],c:0},
+  {q:"ما هو اسم البركان الذي تسبب في دمار مدينة بومبي؟",a:["فيزوف","إتنا","ستروبولي","سانتوريني"],c:0},
+  {q:"أي دولة تمتلك أكبر عدد من المناطق الزمنية؟",a:["روسيا","الولايات المتحدة","الصين","أستراليا"],c:0},
+  {q:"ما هي عاصمة كولومبيا؟",a:["بوغوتا","ميديين","كالي","كارتاهينا"],c:0},
+  {q:"في أي قارة يقع غرينلاند سياسياً؟",a:["أمريكا الشمالية","أوروبا","القطب الشمالي","أوقيانوسيا"],c:0},
+  {q:"ما هو الاسم القديم لإثيوبيا؟",a:["الحبشة","أكسوم","كوش","النوبة"],c:0},
+  {q:"ما هي عاصمة المكسيك؟",a:["مكسيكو سيتي","غوادالاخارا","مونتيري","بوبلا"],c:0},
+  {q:"أي دولة يمر عبرها خط غرينتش؟",a:["المملكة المتحدة","فرنسا","إسبانيا","البرتغال"],c:0},
+  {q:"ما هو أعمق بحيرة في العالم؟",a:["بايكال","تيتيكاكا","سوبيريور","تنغانيقا"],c:0},
+],
+
+/* ══ SCIENCE: 50 questions ══ */
+science:[
+  {q:"ما هو الرمز الكيميائي للذهب؟",a:["Au","Go","Gd","Ag"],c:0},
+  {q:"كم عدد عظام الجسم البشري البالغ؟",a:["206","180","250","300"],c:0},
+  {q:"ما هو الغاز الأكثر وفرة في الغلاف الجوي للأرض؟",a:["النيتروجين","الأكسجين","ثاني أكسيد الكربون","الأرجون"],c:0},
+  {q:"من صاغ نظرية النسبية؟",a:["أينشتاين","نيوتن","هوكينج","بور"],c:0},
+  {q:"ما هي سرعة الضوء تقريبًا؟",a:["300,000 كم/ث","150,000 كم/ث","600,000 كم/ث","100,000 كم/ث"],c:0},
+  {q:"كم عدد كروموسومات الإنسان؟",a:["46","23","48","44"],c:0},
+  {q:"ما هو الرمز الكيميائي للماء؟",a:["H₂O","CO₂","O₂","H₂"],c:0},
+  {q:"ما هو أكبر عضو في جسم الإنسان؟",a:["الجلد","الكبد","الدماغ","القلب"],c:0},
+  {q:"ما هو أصغر كوكب في المجموعة الشمسية؟",a:["عطارد","المريخ","الزهرة","أورانوس"],c:0},
+  {q:"ما هو الجهاز المسؤول عن ضخ الدم في الجسم؟",a:["القلب","الرئة","الكبد","الكلى"],c:0},
+  {q:"كم عدد عناصر الجدول الدوري الحالية؟",a:["118","108","100","120"],c:0},
+  {q:"ما هو الرمز الكيميائي للحديد؟",a:["Fe","Ir","In","Hg"],c:0},
+  {q:"ما هي درجة غليان الماء عند الضغط الجوي الطبيعي؟",a:["100°م","90°م","110°م","80°م"],c:0},
+  {q:"كم تبعد الأرض عن الشمس تقريبًا؟",a:["150 مليون كم","100 مليون كم","200 مليون كم","50 مليون كم"],c:0},
+  {q:"ما هو الكوكب المسمى بالكوكب الأحمر؟",a:["المريخ","المشتري","زحل","الزهرة"],c:0},
+  {q:"ما هي وحدة قياس شدة الزلازل؟",a:["ريختر","نيوتن","باسكال","جول"],c:0},
+  {q:"ما هو اسم الجزء من الدماغ المسؤول عن التنفس؟",a:["النخاع المستطيل","المخيخ","الفص الجبهي","الهيبوكامبوس"],c:0},
+  {q:"ما هو أثقل عنصر في الجدول الدوري الطبيعي؟",a:["اليورانيوم","الرصاص","الذهب","البلاتين"],c:0},
+  {q:"كم يبلغ عدد أسنان الإنسان البالغ؟",a:["32","28","30","34"],c:0},
+  {q:"ما هو الاسم العلمي لفيتامين C؟",a:["حمض الأسكوربيك","حمض الفوليك","ريتينول","كالسيفيرول"],c:0},
+  {q:"ما هي العضو الذي يُنتج الأنسولين؟",a:["البنكرياس","الكبد","الكلى","الغدة الدرقية"],c:0},
+  {q:"ما هو الرمز الكيميائي للصوديوم؟",a:["Na","So","Sd","Sn"],c:0},
+  {q:"ما هو أكثر غاز يُسهم في ظاهرة الاحتباس الحراري؟",a:["ثاني أكسيد الكربون","الميثان","بخار الماء","الأوزون"],c:0},
+  {q:"كم عدد حواس الإنسان الأساسية؟",a:["5","6","4","7"],c:0},
+  {q:"ما هو الاسم العلمي لتفاحة آدم؟",a:["الغضروف الدرقي","اللوزتان","اللسان","الحنجرة"],c:0},
+  {q:"ما هي أقرب مجرة إلى مجرتنا درب التبانة؟",a:["مجرة أندروميدا","مجرة المثلث","مجرة الميفيا","السحابة الماجلانية الكبرى"],c:0},
+  {q:"ما هو الجسم الذي يدور حول الأرض؟",a:["القمر","الشمس","المريخ","الزهرة"],c:0},
+  {q:"ما هو أثقل معدن في درجة الحرارة العادية؟",a:["الإريديوم","الذهب","البلاتين","الرصاص"],c:0},
+  {q:"ما هي درجة تجمد الماء؟",a:["0°م","-4°م","4°م","-10°م"],c:0},
+  {q:"ما هو الكائن الحي الذي له أكثر قلوب في الطبيعة؟",a:["الأخطبوط","الديدان","الحبار","الروبيان"],c:0},
+  {q:"ما هو عدد الأضلاع في الهيكل العظمي البشري؟",a:["24","22","26","28"],c:0},
+  {q:"ما هي وحدة قياس القوة في النظام الدولي؟",a:["نيوتن","جول","واط","باسكال"],c:0},
+  {q:"ما هو الرمز الكيميائي للكالسيوم؟",a:["Ca","K","Co","Cu"],c:0},
+  {q:"ما هو الاسم الآخر لثاني أكسيد الكربون الصلب؟",a:["الجليد الجاف","ثلج الكربون","الجليد الكيميائي","برد البخار"],c:0},
+  {q:"كم طول الأمعاء الدقيقة في الإنسان البالغ تقريباً؟",a:["6-7 أمتار","2-3 أمتار","10-12 متراً","1-2 متر"],c:0},
+  {q:"ما هو الاسم العلمي لعظم الساق الكبرى؟",a:["الظنبوب","الشظية","الفخذ","الإبهام"],c:0},
+  {q:"ما عدد أسنان القواطع في الفك البشري؟",a:["8","4","6","10"],c:0},
+  {q:"من مكتشف عنصر الراديوم؟",a:["ماري كوري","لويس باستور","ألفريد نوبل","إرنست رذرفورد"],c:0},
+  {q:"ما هو الكوكب الأكبر في مجموعتنا الشمسية؟",a:["المشتري","زحل","أورانوس","نبتون"],c:0},
+  {q:"ما هي مدة دوران الأرض حول نفسها؟",a:["24 ساعة","12 ساعة","48 ساعة","36 ساعة"],c:0},
+  {q:"ما هي وحدة قياس الكهرباء (شدة التيار)؟",a:["أمبير","فولت","واط","أوم"],c:0},
+  {q:"ما هي أسرع خلية عصبية في جسم الإنسان؟",a:["الخلايا الحركية","الخلايا الحسية","الخلايا الدماغية","الخلايا الذاتية"],c:0},
+  {q:"كم يبلغ طول الحمض النووي DNA الكامل للإنسان لو فُردّ؟",a:["2 متر","20 سم","20 متر","200 متر"],c:0},
+  {q:"ما هو الرمز الكيميائي للبوتاسيوم؟",a:["K","P","Pt","Pb"],c:0},
+  {q:"ما هو اسم الغشاء الذي يغطي الرئتين؟",a:["غشاء الجنب","الغشاء المخاطي","الصفاق","التأمور"],c:0},
+  {q:"ما هو العلم الذي يدرس الزلازل؟",a:["علم الزلازل","الجيولوجيا","علم البراكين","الجيوفيزياء"],c:0},
+  {q:"ما هو أكثر معدن وفرة على سطح الأرض؟",a:["الألومنيوم","الحديد","السيليكون","الكالسيوم"],c:0},
+  {q:"ما عدد أسنان الحكمة عند الإنسان؟",a:["4","2","6","8"],c:0},
+  {q:"من هو مكتشف التلقيح وأبو اللقاحات؟",a:["إدوارد جينر","لويس باستور","روبرت كوخ","ألكسندر فليمنغ"],c:0},
+  {q:"ما هو الرمز الكيميائي للفضة؟",a:["Ag","Si","Sv","Sl"],c:0},
+  {q:"ما هي مدة دوران الأرض حول الشمس؟",a:["365.25 يوم","360 يوم","366 يوم","364 يوم"],c:0},
+],
+
+/* ══ CULTURE: 65 questions ══ */
+culture:[
+  {q:"ما هو أكبر برج في العالم حتى الآن؟",a:["برج خليفة","برج الاتصالات","برج إيفل","برج الحرية"],c:0},
+  {q:"كم عدد ألوان قوس قزح؟",a:["7","6","5","8"],c:0},
+  {q:"من رسم لوحة الموناليزا؟",a:["ليوناردو دافنشي","ميكيلانجيلو","رافاييل","رامبرانت"],c:0},
+  {q:"ما هو أسرع حيوان على اليابسة؟",a:["الفهد","الأسد","الحصان","الظبي"],c:0},
+  {q:"كم عدد أيام السنة الكبيسة؟",a:["366","365","364","367"],c:0},
+  {q:"من كتب رواية البؤساء؟",a:["فيكتور هوغو","بلزاك","ديكنز","زولا"],c:0},
+  {q:"ما هو أكثر لغة منطوقة في العالم؟",a:["الإنجليزية","الماندرين الصيني","الإسبانية","العربية"],c:0},
+  {q:"من هو مؤلف مسرحية هاملت؟",a:["شكسبير","مولييه","ديكنز","هوميروس"],c:0},
+  {q:"كم يبلغ عدد أحرف اللغة العربية؟",a:["28","26","30","25"],c:0},
+  {q:"ما هو الحيوان الوطني لأستراليا الأكثر شهرة؟",a:["الكنغر","الكوالا","الديك الرومي","الإيمو"],c:0},
+  {q:"من هو مؤلف رواية ألف ليلة وليلة؟",a:["مؤلف مجهول","الجاحظ","ابن المقفع","أبو نواس"],c:0},
+  {q:"ما هو الاسم الكامل لموتزارت؟",a:["فولفغانغ أماديوس موتزارت","يوهان سيباستيان موتزارت","لودفيغ فان موتزارت","فريدريك موتزارت"],c:0},
+  {q:"ما هي أقدم لغة حية لا تزال مستخدمة؟",a:["التاميلية","العبرية","الصينية","السنسكريتية"],c:0},
+  {q:"ما هو الكتاب الأكثر مبيعاً في التاريخ بعد الكتب المقدسة؟",a:["دون كيشوت","هاري بوتر","الأمير الصغير","الحرب والسلام"],c:0},
+  {q:"كم عدد مسرحيات شكسبير؟",a:["37","25","45","30"],c:0},
+  {q:"من لحّن سيمفونية القدر الخامسة؟",a:["بيتهوفن","موتزارت","باخ","شوبان"],c:0},
+  {q:"ما هو أكبر متحف في العالم؟",a:["اللوفر","متحف بريطاني","الإرميتاج","المتروبوليتان"],c:0},
+  {q:"في أي مدينة تقع ساعة بيغ بن؟",a:["لندن","باريس","برلين","أمستردام"],c:0},
+  {q:"ما هو اليوم الوطني لفرنسا؟",a:["14 يوليو","1 يناير","8 مايو","11 نوفمبر"],c:0},
+  {q:"من هو مؤلف رواية الجريمة والعقاب؟",a:["دوستويفسكي","تولستوي","تشيخوف","غوركي"],c:0},
+  {q:"ما هو الحيوان الرمز للصين؟",a:["التنين (الباندا رمزياً)","النمر","الفيل","الطاووس"],c:0},
+  {q:"كم عدد وتريات الكمان؟",a:["4","3","5","6"],c:0},
+  {q:"ما هو اسم أشهر جائزة أدبية في العالم؟",a:["جائزة نوبل","جائزة بوكر","جائزة غونكور","جائزة سيرفانتس"],c:0},
+  {q:"من هو الفيلسوف صاحب نظرية 'الإنسان ذئب للإنسان'؟",a:["هوبز","لوك","روسو","كانط"],c:0},
+  {q:"ما هو الشعار الأولمبي؟",a:["أسرع أعلى أقوى","بالروح الأولمبية","العقل السليم","الفوز ليس كل شيء"],c:0},
+  {q:"من رسم لوحة 'الصرخة'؟",a:["إدفارد مونش","فان غوخ","سيزان","ماتيس"],c:0},
+  {q:"ما هو أغلى لوحة بيعت في التاريخ؟",a:["سالفاتور موندي - داvinشي","موناليزا","عباد الشمس - فان غوخ","الصرخة"],c:0},
+  {q:"كم عدد نوتات السلم الموسيقي؟",a:["7","5","8","12"],c:0},
+  {q:"من هو مخترع الطباعة؟",a:["يوهانس غوتنبرغ","ليوناردو دافنشي","نيوتن","فرانكلين"],c:0},
+  {q:"ما هو أطول رواية في التاريخ؟",a:["الحرب والسلام لتولستوي","في البحث عن الزمن الضائع لبروست","دون كيشوت","ألف ليلة وليلة"],c:0},
+  {q:"في أي مدينة تقع لوحة الموناليزا؟",a:["باريس","روما","مدريد","لندن"],c:0},
+  {q:"من هو مؤسس علم الاجتماع؟",a:["أوغست كونت","ابن خلدون","دوركهايم","ماكس ويبر"],c:0},
+  {q:"ما هو أكثر اسم شخصية خيالية شهرة في الأدب العالمي؟",a:["شيرلوك هولمز","دراكولا","دون كيشوت","هاكلبري فين"],c:0},
+  {q:"ما هي اللغة التي كتب بها دانتي ملحمة الكوميديا الإلهية؟",a:["الإيطالية","اللاتينية","الفرنسية","الإسبانية"],c:0},
+  {q:"من هو النحات الذي صنع تمثال الحرية؟",a:["فريدريك أوغست بارتولدي","رودان","ميكيلانجيلو","برنيني"],c:0},
+  {q:"كم عدد أوتار العود العربي التقليدي؟",a:["11","6","5","8"],c:0},
+  {q:"ما هو أقدم ملحمة أدبية في التاريخ؟",a:["ملحمة جلجامش","الإلياذة","الأوديسة","الرامايانا"],c:0},
+  {q:"من هو مؤلف مسرحية روميو وجولييت؟",a:["شكسبير","مولييه","راسين","كورنيي"],c:0},
+  {q:"في أي دولة يوجد تمثال المسيح الفادي الشهير؟",a:["البرازيل","الأرجنتين","بيرو","شيلي"],c:0},
+  {q:"ما هو الدين الأكثر انتشاراً في العالم؟",a:["المسيحية","الإسلام","الهندوسية","البوذية"],c:0},
+  {q:"كم عدد الدول التي تتكلم الإسبانية لغةً رسميةً؟",a:["20","15","25","18"],c:0},
+  {q:"ما هي أقدم جامعة في العالم؟",a:["جامعة بولونيا","جامعة الأزهر","جامعة القرويين","جامعة أكسفورد"],c:0},
+  {q:"من هو صاحب نظرية الطيران (المبدأ)؟",a:["الأخوان رايت","ليوناردو دافنشي","أوتو ليلينتال","جورج كيلي"],c:0},
+  {q:"ما هو اسم منظمة الأمم المتحدة للتربية والعلوم؟",a:["يونسكو","يونيسف","الفاو","منظمة الصحة العالمية"],c:0},
+  {q:"من هو مؤلف قصيدة الإلياذة؟",a:["هوميروس","فيرجيل","أوفيد","هيزيود"],c:0},
+  {q:"ما هو أكثر مهرجان موسيقي شهرة في العالم؟",a:["وودستوك","كوتشيلا","غلاستونبري","تومورولاند"],c:0},
+  {q:"في أي مدينة يقع كولوسيوم روما؟",a:["روما","ميلانو","فلورنسا","نابولي"],c:0},
+  {q:"من هو الفيلسوف الذي قال 'أنا أفكر إذن أنا موجود'؟",a:["ديكارت","كانط","سقراط","أرسطو"],c:0},
+  {q:"ما هو اسم أشهر سيمفونية لبيتهوفن والمرتبطة بالسمع؟",a:["السيمفونية التاسعة","الخامسة","الثالثة","السادسة"],c:0},
+  {q:"كم عدد الجنسيات الفائزة بجائزة نوبل للأدب؟",a:["أكثر من 30","20","15","50"],c:0},
+  {q:"من هو مبدع ميكي ماوس؟",a:["والت ديزني","ويليام هانا","والت ديزني وأوب إيويركس","تيكس أيفري"],c:0},
+  {q:"ما هي أكبر مكتبة في العالم؟",a:["مكتبة الكونغرس","المكتبة البريطانية","مكتبة الإسكندرية","مكتبة باريس"],c:0},
+  {q:"ما هو الفرق بين الفن التجريدي والكلاسيكي؟",a:["التجريدي لا يمثل الواقع بشكل مباشر","التجريدي أقدم","الكلاسيكي أكثر تعقيداً","لا فرق"],c:0},
+  {q:"من هو مؤلف رواية الأمير الصغير؟",a:["أنطوان دو سان إكزوبيري","جول فيرن","ألبير كامو","مارسيل بروست"],c:0},
+  {q:"ما هو الحيوان الذي يرمز للحكمة في الثقافة الغربية؟",a:["البومة","الفيل","الثعلب","الدلفين"],c:0},
+  {q:"في أي عام بُني سور الصين العظيم ابتداءً؟",a:["7 ق.م","1000م","500 ق.م","200م"],c:0},
+  {q:"من هو مبدع الباليه الكلاسيكي 'بحيرة البجع'؟",a:["تشايكوفسكي","بيتهوفن","شوبان","موتزارت"],c:0},
+  {q:"ما هو أقدم رياضة في التاريخ؟",a:["المصارعة","الجري","الرماية","السباحة"],c:0},
+  {q:"كم عدد الكتب في الإنجيل المسيحي الكاثوليكي؟",a:["73","66","80","60"],c:0},
+  {q:"من هو رسام 'عباد الشمس' الشهيرة؟",a:["فان غوخ","مونيه","رينوار","سيزان"],c:0},
+  {q:"ما هو الاسم الأول لإمبراطور الرومان يوليوس قيصر؟",a:["غايوس","يوليوس","ماركوس","لوسيوس"],c:0},
+  {q:"ما هو اسم الرقصة الأرجنتينية الأكثر شهرة؟",a:["التانغو","السامبا","الفلامنكو","الرومبا"],c:0},
+],
+
+/* ══ TECH: 40 questions ══ */
+tech:[
+  {q:"من أسس شركة آبل؟",a:["ستيف جوبز","بيل غيتس","مارك زوكربرغ","جيف بيزوس"],c:0},
+  {q:"ما معنى اختصار HTML؟",a:["HyperText Markup Language","High Text Making Language","Hyper Transfer Markup Link","Home Text Module Language"],c:0},
+  {q:"متى أُطلق الإنترنت للعموم؟",a:["1991","1985","2000","1995"],c:0},
+  {q:"ما هو نظام تشغيل Google للهواتف؟",a:["Android","iOS","Windows Mobile","HarmonyOS"],c:0},
+  {q:"من أسس شركة Microsoft؟",a:["بيل غيتس","ستيف جوبز","لاري إليسون","مارك زوكربرغ"],c:0},
+  {q:"ما معنى اختصار CPU؟",a:["Central Processing Unit","Computer Power Unit","Central Program Utility","Core Processing Utility"],c:0},
+  {q:"ما أشهر محرك بحث في العالم؟",a:["Google","Bing","Yahoo","DuckDuckGo"],c:0},
+  {q:"ما هي لغة البرمجة الأكثر استخداماً في تطوير الويب؟",a:["JavaScript","Python","Java","C++"],c:0},
+  {q:"من اخترع الهاتف؟",a:["ألكسندر غراهام بيل","توماس إديسون","نيكولا تيسلا","صموئيل مورس"],c:0},
+  {q:"ما معنى اختصار URL؟",a:["Uniform Resource Locator","Universal Resource Link","Unified Reference Location","Unique Resource Language"],c:0},
+  {q:"في أي سنة صدر أول آيفون؟",a:["2007","2005","2009","2010"],c:0},
+  {q:"ما هي شركة نظام تشغيل لينكس الأصلي؟",a:["لا شركة - هو مفتوح المصدر","IBM","Microsoft","Red Hat"],c:0},
+  {q:"من هو مخترع شبكة الإنترنت (WWW)؟",a:["تيم بيرنرز لي","فينت سيرف","بوب كان","آرا بانيانيان"],c:0},
+  {q:"ما معنى اختصار RAM؟",a:["Random Access Memory","Read And Modify","Rapid Access Module","Remote Access Memory"],c:0},
+  {q:"ما هو أسرع حاسوب في العالم حالياً؟",a:["Frontier","Summit","Fugaku","Aurora"],c:0},
+  {q:"من أسس شركة Tesla و SpaceX؟",a:["إيلون ماسك","جيف بيزوس","ريتشارد برانسون","بيتر ثيل"],c:0},
+  {q:"ما هي لغة برمجة تطبيقات iPhone رسمياً؟",a:["Swift","Kotlin","Java","C#"],c:0},
+  {q:"ما معنى اختصار API؟",a:["Application Programming Interface","Advanced Program Integration","Automated Process Interface","Application Performance Index"],c:0},
+  {q:"في أي سنة أُسست شركة Google؟",a:["1998","1996","2000","2002"],c:0},
+  {q:"ما هي لغة برمجة تطبيقات Android رسمياً؟",a:["Kotlin","Swift","Java","C++"],c:0},
+  {q:"من اخترع الإلكترون؟",a:["J.J. Thomson","روذرفورد","بور","شرودنغر"],c:0},
+  {q:"ما معنى اختصار VPN؟",a:["Virtual Private Network","Very Protected Node","Video Processing Network","Variable Public Network"],c:0},
+  {q:"في أي سنة أُسست شركة Amazon؟",a:["1994","1998","2000","1992"],c:0},
+  {q:"ما هو الفرق بين RAM وROM؟",a:["RAM مؤقت قابل للكتابة، ROM ثابت للقراءة فقط","لا فرق","ROM أسرع","RAM للتخزين الدائم"],c:0},
+  {q:"من أسس شركة Facebook؟",a:["مارك زوكربرغ","ستيف جوبز","جاك دورسي","كيفن سيستروم"],c:0},
+  {q:"ما هو أكثر نظام تشغيل استخداماً في الخوادم؟",a:["Linux","Windows","macOS","FreeBSD"],c:0},
+  {q:"ما معنى اختصار AI؟",a:["Artificial Intelligence","Automatic Interface","Advanced Internet","Application Integration"],c:0},
+  {q:"في أي سنة أُسست شركة Apple؟",a:["1976","1980","1984","1970"],c:0},
+  {q:"ما هو اسم خوارزمية البحث الأساسية في Google؟",a:["PageRank","WebCrawl","SearchBot","IndexLink"],c:0},
+  {q:"ما هو تعريف Big Data؟",a:["بيانات ضخمة جداً يصعب معالجتها بالأدوات التقليدية","برامج كبيرة الحجم","شبكات واسعة","قواعد بيانات متعددة"],c:0},
+  {q:"من اخترع لغة Python؟",a:["غويدو فان روسوم","لينوس تورفالدز","جيمس غوسلينغ","برنارد لانغ"],c:0},
+  {q:"ما هي الشبكة الأجيال في الهاتف المحمول الأحدث؟",a:["5G","4G","6G","LTE"],c:0},
+  {q:"ما معنى اختصار SQL؟",a:["Structured Query Language","Simple Question Language","Standard Query List","Sequential Query Logic"],c:0},
+  {q:"في أي سنة أُطلق موقع YouTube؟",a:["2005","2003","2007","2009"],c:0},
+  {q:"ما هو اسم المساعد الذكي من Apple؟",a:["Siri","Alexa","Cortana","Bixby"],c:0},
+  {q:"ما هو اسم نظام ملفات Windows الأحدث؟",a:["NTFS","FAT32","exFAT","HFS+"],c:0},
+  {q:"من أسس شركة Twitter (X حالياً) في البداية؟",a:["جاك دورسي","إيلون ماسك","نوح غلاس","بيز ستون"],c:0},
+  {q:"ما هو اختصار JSON؟",a:["JavaScript Object Notation","Java Standard Object Node","Java Secure Online Network","JavaScript Online Notation"],c:0},
+  {q:"في أي سنة ظهر أول هاتف محمول تجاري؟",a:["1983","1973","1990","1995"],c:0},
+  {q:"ما هو اسم بروتوكول نقل الملفات عبر الإنترنت؟",a:["FTP","HTTP","SMTP","TCP"],c:0},
+],
+
+/* ══ CINEMA: 45 questions ══ */
+cinema:[
+  {q:"من أخرج فيلم Titanic عام 1997؟",a:["جيمس كاميرون","ستيفن سبيلبرغ","كريستوفر نولان","ريدلي سكوت"],c:0},
+  {q:"ما هو الفيلم الأعلى إيراداً في التاريخ؟",a:["Avatar","Avengers Endgame","Titanic","The Lion King"],c:0},
+  {q:"من يؤدي دور توني ستارك في سلسلة مارفل؟",a:["روبرت داوني جونيور","كريس إيفانز","كريس هيمسوورث","مارك رافالو"],c:0},
+  {q:"في أي سنة صدر فيلم The Godfather؟",a:["1972","1969","1975","1980"],c:0},
+  {q:"ما اسم المسلسل عن كيمياء يصنع المخدرات؟",a:["Breaking Bad","Better Call Saul","Narcos","Ozark"],c:0},
+  {q:"من أخرج سلسلة أفلام The Lord of the Rings؟",a:["بيتر جاكسون","ستيفن سبيلبرغ","جورج لوكاس","جيمس كاميرون"],c:0},
+  {q:"ما اسم المنصة التي تنتج Stranger Things؟",a:["Netflix","HBO","Disney+","Amazon Prime"],c:0},
+  {q:"في أي بلد تدور أحداث Money Heist؟",a:["إسبانيا","إيطاليا","البرتغال","فرنسا"],c:0},
+  {q:"من يؤدي دور جيمس بوند في Casino Royale 2006؟",a:["دانيال كريغ","بيرس برونان","روجر مور","تيموثي دالتون"],c:0},
+  {q:"ما هو أطول مسلسل أمريكي بالعدد الكلي للحلقات؟",a:["The Simpsons","Gunsmoke","Law & Order","Grey's Anatomy"],c:0},
+  {q:"من أخرج فيلم Schindler's List؟",a:["ستيفن سبيلبرغ","مارتن سكورسيزي","كوبريك","فرانسيس فورد كوبولا"],c:0},
+  {q:"في أي سنة صدر فيلم Star Wars الأول؟",a:["1977","1980","1983","1975"],c:0},
+  {q:"ما اسم الشخصية التي يؤديها ليوناردو دي كابريو في The Revenant؟",a:["هيو غلاس","جاك داوسون","جوردان بيلفورت","بيلي كوستيغان"],c:0},
+  {q:"من هو مخرج فيلم Inception؟",a:["كريستوفر نولان","جيمس كاميرون","ريدلي سكوت","دارن أرونوفسكي"],c:0},
+  {q:"ما اسم المسلسل الوثائقي عن الطبيعة الأشهر؟",a:["Planet Earth","Blue Planet","Our Planet","Wild"],c:0},
+  {q:"من يؤدي دور البطل في سلسلة The Fast and the Furious؟",a:["فان ديزل","بول ووكر","دواين جونسون","تايريز جيبسون"],c:0},
+  {q:"في أي سنة صدر فيلم The Lion King الرسوم المتحركة الأصلي؟",a:["1994","1991","1998","1992"],c:0},
+  {q:"ما هو اسم دار إنتاج سلسلة أفلام Marvel Cinema Universe؟",a:["Marvel Studios","Disney","Sony","Paramount"],c:0},
+  {q:"من يؤدي دور هيرميون غرانجر في Harry Potter؟",a:["إيما واتسون","كيرا نايتلي","ناتالي بورتمان","أميليا كلارك"],c:0},
+  {q:"في أي سنة صدر مسلسل Game of Thrones؟",a:["2011","2008","2014","2010"],c:0},
+  {q:"من هو المخرج الذي يُعرف بأفلام العنف والجماليات مثل Pulp Fiction؟",a:["كوينتن تارانتينو","مارتن سكورسيزي","تيم بيرتون","ديفيد فينشر"],c:0},
+  {q:"ما هو اسم الشخصية الرئيسية في مسلسل Breaking Bad؟",a:["والتر وايت","جيسي بينكمان","هانك شرادر","ساول غودمان"],c:0},
+  {q:"في أي سنة صدر فيلم Avatar الأول؟",a:["2009","2007","2011","2005"],c:0},
+  {q:"من أخرج الجزء الأول من The Avengers؟",a:["جوس ويدون","أنتوني روسو","جو روسو","جيمس غان"],c:0},
+  {q:"ما اسم المسلسل الكوري الفائز بجوائز الإيمي؟",a:["Squid Game","Kingdom","Crash Landing on You","Goblin"],c:0},
+  {q:"في أي دولة تُصنع أفلام 'بوليوود'؟",a:["الهند","باكستان","بنغلاديش","سريلانكا"],c:0},
+  {q:"من يؤدي دور جوكر في فيلم 2019؟",a:["واكين فينيكس","هيث ليدجر","جاريد ليتو","تومي لي جونز"],c:0},
+  {q:"ما هو اسم شركة إنتاج ستيفن سبيلبرغ؟",a:["Amblin Entertainment","Universal","Legendary","New Line"],c:0},
+  {q:"في أي سنة صدر فيلم Forrest Gump؟",a:["1994","1990","1998","1992"],c:0},
+  {q:"من يؤدي دور البطل في مسلسل The Crown؟",a:["كلير فوي وأوليفيا كولمان","هيلين ميرين","كيت بلانشيت","إيما طومبسون"],c:0},
+  {q:"ما هو اسم الفيلم العربي الأول الذي وصل لترشيح أوسكار؟",a:["عمر","المدينة","رسالة","الكاتب"],c:0},
+  {q:"في أي مدينة تُقام جوائز الأوسكار؟",a:["لوس أنجلوس","نيويورك","هوليوود","سان فرانسيسكو"],c:0},
+  {q:"من يؤدي دور الدكتور في مسلسل The Good Doctor؟",a:["فريدي هايمور","ماثيو بيري","باتريك ديمبسي","سانتياغو كابريرا"],c:0},
+  {q:"ما هو أشهر فيلم رسوم متحركة ياباني على الإطلاق؟",a:["Spirited Away","My Neighbor Totoro","Akira","Ghost in the Shell"],c:0},
+  {q:"في أي سنة أُسست شركة Netflix؟",a:["1997","2000","2007","2005"],c:0},
+  {q:"من أخرج فيلم Parasite الفائز بأوسكار أفضل فيلم 2020؟",a:["بونغ جون هو","كيم كي دوك","لي تشانغ دونغ","هونغ سانغ سو"],c:0},
+  {q:"ما اسم الشخصية الرئيسية في مسلسل Sherlock BBC؟",a:["شيرلوك هولمز","هيركيول بوارو","إنسبيكتور لسترايد","جون واتسون"],c:0},
+  {q:"في أي سنة صدر مسلسل Friends؟",a:["1994","1990","1998","1992"],c:0},
+  {q:"من يؤدي دور البطل في سلسلة أفلام Mission: Impossible؟",a:["توم كروز","ويل سميث","براد بيت","مات ديمون"],c:0},
+  {q:"ما هو اسم مدينة الأفلام في مصر؟",a:["مدينة الإنتاج الإعلامي","استوديو مصر","الغروب الإعلامي","مدينة الفن"],c:0},
+  {q:"في أي سنة انتهى مسلسل Game of Thrones؟",a:["2019","2017","2021","2018"],c:0},
+  {q:"من يؤدي دور البطلة في مسلسل Killing Eve؟",a:["ساندرا أوه","تاتيانا مزلاني","تيلدا سوينتون","أوليفيا كولمان"],c:0},
+  {q:"ما هو اسم المخرج المصري الأشهر في تاريخ السينما العربية؟",a:["يوسف شاهين","كمال الشيخ","هنري بركات","توفيق صالح"],c:0},
+  {q:"في أي سنة صدر فيلم Schindler's List؟",a:["1993","1990","1996","1988"],c:0},
+  {q:"ما هو أشهر مهرجان سينمائي في العالم؟",a:["مهرجان كان","فينيسيا","برلين","تورنتو"],c:0},
+],
+
+/* ══ ISLAM: 55 questions ══ */
+islam:[
+  {q:"كم عدد أركان الإسلام؟",a:["5","4","6","7"],c:0},
+  {q:"ما هو أول ما نزل من القرآن الكريم؟",a:["اقرأ باسم ربك","يا أيها المدثر","الحمد لله","بسم الله"],c:0},
+  {q:"كم عدد أنبياء الله المذكورين في القرآن؟",a:["25","20","30","18"],c:0},
+  {q:"ما هي أطول سورة في القرآن الكريم؟",a:["سورة البقرة","سورة آل عمران","سورة النساء","سورة الكهف"],c:0},
+  {q:"في أي شهر أُنزل القرآن الكريم ابتداءً؟",a:["رمضان","شعبان","محرم","ذو الحجة"],c:0},
+  {q:"ما هو عدد أجزاء القرآن الكريم؟",a:["30","25","28","32"],c:0},
+  {q:"كم عدد ركعات صلاة الفجر؟",a:["2","3","4","1"],c:0},
+  {q:"ما هي أقصر سورة في القرآن؟",a:["سورة الكوثر","سورة العصر","سورة الفلق","سورة الناس"],c:0},
+  {q:"في أي مدينة وُلد النبي محمد ﷺ؟",a:["مكة المكرمة","المدينة المنورة","الطائف","جدة"],c:0},
+  {q:"ما هو عدد ركعات صلاة الظهر؟",a:["4","2","3","6"],c:0},
+  {q:"ما هو اسم أول زوجة للنبي ﷺ؟",a:["خديجة","عائشة","حفصة","أم سلمة"],c:0},
+  {q:"كم عدد سور القرآن الكريم؟",a:["114","110","120","100"],c:0},
+  {q:"ما هي السورة التي تُعادل ثلث القرآن؟",a:["سورة الإخلاص","سورة الفاتحة","سورة البقرة","سورة الكهف"],c:0},
+  {q:"ما هو اسم الجبل الذي نزل عليه الوحي للمرة الأولى؟",a:["جبل النور (غار حراء)","جبل ثور","جبل أحد","جبل الصفا"],c:0},
+  {q:"كم عدد ركعات صلاة المغرب؟",a:["3","2","4","5"],c:0},
+  {q:"ما هو اسم ليلة نزول القرآن؟",a:["ليلة القدر","ليلة الإسراء","ليلة البراءة","ليلة المعراج"],c:0},
+  {q:"ما هو أول مسجد في الإسلام؟",a:["مسجد قباء","المسجد الحرام","المسجد النبوي","المسجد الأقصى"],c:0},
+  {q:"كم عدد أيام صوم رمضان تقريباً؟",a:["29 أو 30","28","31","25"],c:0},
+  {q:"ما هو اسم صحيح البخاري كاملاً؟",a:["الجامع المسند الصحيح المختصر","صحيح البخاري","الجامع الصحيح","المسند الصحيح"],c:0},
+  {q:"من هو الصحابي الملقب بـ'سيف الله المسلول'؟",a:["خالد بن الوليد","علي بن أبي طالب","عمر بن الخطاب","الزبير بن العوام"],c:0},
+  {q:"ما هو عدد أسماء الله الحسنى المذكورة في الحديث؟",a:["99","100","101","77"],c:0},
+  {q:"ما هو اسم قبلة المسلمين الأولى؟",a:["المسجد الأقصى","الكعبة المشرفة","المسجد النبوي","مسجد قباء"],c:0},
+  {q:"كم عدد ركعات صلاة العشاء؟",a:["4","3","2","5"],c:0},
+  {q:"ما هو اسم النبي الذي ابتُلي بالمرض الشديد ثم شُفي؟",a:["أيوب","يونس","موسى","إبراهيم"],c:0},
+  {q:"في أي سنة هجرية كانت غزوة بدر؟",a:["2 هجرية","1 هجرية","3 هجرية","4 هجرية"],c:0},
+  {q:"ما هو اسم والد النبي إبراهيم ﷺ؟",a:["آزر","ترح","نامور","صالح"],c:0},
+  {q:"ما هو الاسم الآخر لليوم الآخر في الإسلام؟",a:["يوم القيامة","يوم الدين","يوم الحساب","كل ما سبق"],c:0},
+  {q:"كم عدد الأئمة في المذهب الشيعي الاثني عشري؟",a:["12","7","10","14"],c:0},
+  {q:"ما هو اسم النبي الذي بنى السفينة؟",a:["نوح","إدريس","شيث","لوط"],c:0},
+  {q:"ما هو المذهب الفقهي الأكثر انتشاراً في تونس؟",a:["المالكي","الشافعي","الحنفي","الحنبلي"],c:0},
+  {q:"ما هي سورة القرآن الوحيدة التي لم تبدأ بالبسملة؟",a:["سورة التوبة","سورة الأنفال","سورة النمل","سورة النحل"],c:0},
+  {q:"كم عدد ركعات صلاة العصر؟",a:["4","2","3","6"],c:0},
+  {q:"ما هو اسم ابن النبي إبراهيم الذي أُمر بذبحه؟",a:["إسماعيل","إسحاق","يعقوب","يوسف"],c:0},
+  {q:"ما هو اسم الصحابي الأول الذي أسلم من الرجال؟",a:["أبو بكر الصديق","علي بن أبي طالب","زيد بن حارثة","عمر بن الخطاب"],c:0},
+  {q:"ما هو الحد الأدنى لنصاب الزكاة في الذهب (بالغرام تقريباً)؟",a:["85 غراماً","100 غرام","50 غراماً","200 غرام"],c:0},
+  {q:"ما هو اسم الكتاب المقدس في اليهودية؟",a:["التوراة","الإنجيل","الزبور","الكتاب المقدس"],c:0},
+  {q:"في أي عام وُلد النبي محمد ﷺ؟",a:["571م","570م","573م","565م"],c:0},
+  {q:"ما هو اسم والدة النبي ﷺ؟",a:["آمنة بنت وهب","فاطمة بنت أسد","خديجة بنت خويلد","سمية بنت خياط"],c:0},
+  {q:"كم عدد الآيات في سورة الفاتحة؟",a:["7","6","8","5"],c:0},
+  {q:"ما هو اسم الجسر الذي يعبره الناس يوم القيامة؟",a:["الصراط","الميزان","الحوض","السراط"],c:0},
+  {q:"من هو الصحابي الملقب بـ'أمين الأمة'؟",a:["أبو عبيدة بن الجراح","أبو بكر الصديق","عثمان بن عفان","عبد الرحمن بن عوف"],c:0},
+  {q:"ما هو اسم النبي الذي كان يتحدث مع الطيور والحيوانات؟",a:["سليمان","داود","إدريس","موسى"],c:0},
+  {q:"ما هو أول كتاب مدوّن في الفقه الإسلامي؟",a:["الموطأ للإمام مالك","الرسالة للشافعي","المسند لأحمد","الجامع للبخاري"],c:0},
+  {q:"كم عدد أبواب الجنة في الإسلام؟",a:["8","7","10","6"],c:0},
+  {q:"ما هو اسم النبي الذي ألقاه قومه في النار؟",a:["إبراهيم","موسى","يونس","لوط"],c:0},
+  {q:"ما هو الركن الذي يبدأ منه الطواف؟",a:["الركن الأسود (الحجر الأسود)","ركن اليمانية","الركن العراقي","الركن الشامي"],c:0},
+  {q:"ما هو اسم صلاة ليلة عيد الأضحى الشهيرة؟",a:["صلاة الجمعة","صلاة العيد","التراويح","صلاة الاستسقاء"],c:0},
+  {q:"كم مرة يُكبّر المصلي في صلاة الفجر؟",a:["7 تكبيرات","5","10","12"],c:0},
+  {q:"ما هو اسم الصحيفة التي وقعها النبي ﷺ مع اليهود في المدينة؟",a:["صحيفة المدينة","معاهدة الحديبية","عهد عمر","ميثاق المدينة"],c:0},
+  {q:"ما هو عدد ركوع الصلاة في يوم الجمعة؟",a:["2 ركعة","4","6","3"],c:0},
+  {q:"ما هو اسم الحجر الموجود في الكعبة؟",a:["الحجر الأسود","حجر إسماعيل","المقام الإبراهيمي","الركن اليماني"],c:0},
+  {q:"من هو مؤسس علم الحديث النبوي؟",a:["الإمام البخاري","الإمام مالك","الإمام الشافعي","الإمام أحمد"],c:0},
+  {q:"ما هو اسم السورة المعروفة بـ'قلب القرآن'؟",a:["سورة يس","سورة الفاتحة","سورة البقرة","سورة الرحمن"],c:0},
+  {q:"في أي سنة هجرية فُتحت مكة؟",a:["8 هجرية","7 هجرية","9 هجرية","6 هجرية"],c:0},
+],
+
+/* ══ ARABIC LANGUAGE: 55 questions ══ */
+arabic:[
+  {q:"ما جمع كلمة 'كتاب'؟",a:["كُتُب","كِتَاب","كُتَّاب","كِتَابات"],c:0},
+  {q:"ما مضاد كلمة 'جميل'؟",a:["قبيح","صغير","ضعيف","بطيء"],c:0},
+  {q:"ما هو مفرد كلمة 'أولاد'؟",a:["وَلَد","وِلْد","وَلِيد","وُلَيْد"],c:0},
+  {q:"ما إعراب الاسم بعد حرف الجر؟",a:["مجرور","مرفوع","منصوب","مجزوم"],c:0},
+  {q:"ما معنى كلمة 'عسجد'؟",a:["ذهب","فضة","نحاس","حديد"],c:0},
+  {q:"ما هو جمع كلمة 'مدرسة'؟",a:["مدارس","مدرسات","مدارسون","مدرسون"],c:0},
+  {q:"أي الكلمات التالية مؤنثة؟",a:["شمس","قمر","نهر","جبل"],c:0},
+  {q:"ما هو فعل الأمر من الفعل 'درس'؟",a:["ادرس","درس","يدرس","درّس"],c:0},
+  {q:"ما معنى 'الغَيْهَب'؟",a:["الظلام الشديد","النور الساطع","الريح الشديدة","المطر الغزير"],c:0},
+  {q:"ما هو مثنى كلمة 'يد'؟",a:["يدان","يدين","أيدٍ","أيادٍ"],c:0},
+  {q:"ما هو اسم علامة الإعراب للجمع المذكر السالم في حالة الرفع؟",a:["الواو","الضمة","الألف","النون"],c:0},
+  {q:"ما معنى كلمة 'نَهِل'؟",a:["شرب حتى ارتوى","جاع","نام","حزن"],c:0},
+  {q:"ما هو جمع كلمة 'امرأة'؟",a:["نساء","امرأتان","امرأتون","نسوة أيضاً صحيح"],c:0},
+  {q:"أي الجمل الآتية صحيحة؟",a:["ذهبَ الطلابُ","ذهبوا الطلابُ","ذهبتَ الطلابُ","يذهبونَ الطلابُ"],c:0},
+  {q:"ما هو اسم الشاعر الجاهلي صاحب معلقة 'قفا نبكِ'؟",a:["امرؤ القيس","زهير بن أبي سلمى","عنترة","لبيد"],c:0},
+  {q:"ما هو الفرق بين الفعل المتعدي واللازم؟",a:["المتعدي يحتاج مفعولاً به، اللازم لا يحتاج","لا فرق","اللازم دائماً في المضارع","المتعدي دائماً للمجهول"],c:0},
+  {q:"ما معنى كلمة 'البلاغة'؟",a:["مطابقة الكلام لمقتضى الحال مع الفصاحة","الشعر الجميل","الكلام الطويل","الكتابة السريعة"],c:0},
+  {q:"ما هو اسم الصنعة الأدبية التي تتناقض فيها المعاني؟",a:["الطباق","الجناس","الاستعارة","التشبيه"],c:0},
+  {q:"ما هو جمع كلمة 'بيت'؟",a:["بيوت","أبيات","بيتات","كل ما سبق صحيح"],c:0},
+  {q:"ما معنى 'اللهجة الدارجة'؟",a:["العامية","الفصحى","اللغة الرسمية","لغة الأدب"],c:0},
+  {q:"ما هو مفرد كلمة 'قواعد'؟",a:["قاعدة","قاعد","قعيدة","مقعد"],c:0},
+  {q:"ما هو اسم أول معجم عربي؟",a:["العين للخليل بن أحمد","لسان العرب","القاموس المحيط","الصحاح"],c:0},
+  {q:"ما هو الحرف الذي لا يوجد في أي كلمة عربية أصيلة في أولها؟",a:["الياء (نادراً) / الواو","الألف","الهمزة","الباء"],c:0},
+  {q:"ما معنى كلمة 'فَصِيح'؟",a:["بيّن الكلام واضحه","صاحب الفصاحة","الخطيب","المتكلم"],c:0},
+  {q:"أي أداة الاستفهام تُستخدم للعاقل فقط؟",a:["من","ما","أيّ","كيف"],c:0},
+  {q:"ما هو إعراب 'محمداً' في الجملة 'رأيتُ محمداً'؟",a:["مفعول به منصوب","فاعل مرفوع","مبتدأ","خبر"],c:0},
+  {q:"ما هو اسم الظاهرة اللغوية التي تجمع بين لفظين متشابهين بمعنيين مختلفين؟",a:["الجناس","الطباق","الاستعارة","الكناية"],c:0},
+  {q:"ما هو مفرد كلمة 'جراثيم'؟",a:["جرثومة","جُرثوم","جَرثَم","جُرثُم"],c:0},
+  {q:"في أي قرن عاش الشاعر المتنبي؟",a:["القرن العاشر الميلادي","الثامن","الثاني عشر","السابع"],c:0},
+  {q:"ما هو اسم الشاعر العربي الذي لقب بـ'شاعر النيل'؟",a:["حافظ إبراهيم","أحمد شوقي","نزار قباني","محمود درويش"],c:0},
+  {q:"ما هو اسم الأسلوب البلاغي الذي يذكر الشيء ويُراد به لازمه؟",a:["الكناية","التشبيه","الاستعارة","المجاز"],c:0},
+  {q:"ما جمع كلمة 'سيف'؟",a:["سيوف","أسياف","سيفان","كل ما سبق"],c:0},
+  {q:"ما هو اسم الشاعر العربي المعروف بـ'شاعر العروبة'؟",a:["أحمد شوقي","نزار قباني","محمود درويش","أبو القاسم الشابي"],c:0},
+  {q:"ما معنى كلمة 'مترادف'؟",a:["كلمة تحمل نفس معنى كلمة أخرى","كلمة معاكسة","كلمة مشتقة","كلمة جديدة"],c:0},
+  {q:"ما هو نوع الجملة 'قامَ زيدٌ'؟",a:["جملة فعلية","جملة اسمية","جملة ظرفية","جملة إنشائية"],c:0},
+  {q:"ما هو المصدر من الفعل 'فَهِمَ'؟",a:["فَهْم","فاهِم","مفهوم","يَفهَم"],c:0},
+  {q:"ما معنى كلمة 'خَيْفق'؟",a:["فرس سريع","ريح شديدة","رجل شجاع","ماء عذب"],c:0},
+  {q:"ما هو اسم علم اللغة الذي يدرس الأصوات؟",a:["علم الصوتيات (الفونولوجيا)","علم النحو","علم الصرف","علم الدلالة"],c:0},
+  {q:"ما هو جمع كلمة 'حديقة'؟",a:["حدائق","حديقات","محاديق","حوادق"],c:0},
+  {q:"ما هو إعراب الاسم المرفوع بعد الفعل؟",a:["فاعل","مفعول به","مبتدأ","خبر"],c:0},
+  {q:"ما معنى 'القافية' في الشعر العربي؟",a:["الحروف الأخيرة المتكررة في نهاية الأبيات","الوزن الشعري","التشبيه","الروي"],c:0},
+  {q:"ما هو اسم أول شاعرة عربية مشهورة في الإسلام؟",a:["الخنساء","ليلى الأخيلية","رابعة العدوية","سكينة بنت الحسين"],c:0},
+  {q:"ما معنى كلمة 'نَزق'؟",a:["خفة وطيش","شجاعة","ذكاء","جرأة"],c:0},
+  {q:"ما هو الفرق بين الحال والتمييز؟",a:["الحال يبيّن هيئة صاحبه، والتمييز يرفع الإبهام عن نسبة","لا فرق","التمييز منصوب دائماً","الحال مرفوع"],c:0},
+  {q:"ما هو جمع كلمة 'نجم'؟",a:["نجوم","أنجم","نُجَيمات","كل ما سبق"],c:0},
+  {q:"ما هو اسم الكتاب النحوي الأشهر في التراث العربي؟",a:["الكتاب لسيبويه","ألفية ابن مالك","المفصل للزمخشري","أوضح المسالك"],c:0},
+  {q:"أي الكلمات التالية ممنوعة من الصرف؟",a:["أحمد","محمد","خالد","سعيد"],c:0},
+  {q:"ما هو اسم الصنعة الأدبية حين يشبه الشاعر شيئاً بشيء آخر؟",a:["التشبيه","الكناية","الاستعارة","الطباق"],c:0},
+  {q:"ما معنى 'الوقف' في علم التجويد؟",a:["قطع الصوت عند نهاية كلمة","الإخفاء","الإدغام","القلب"],c:0},
+  {q:"ما هو جمع كلمة 'ضيف'؟",a:["ضيوف","أضياف","ضيفان","كل ما سبق"],c:0},
+  {q:"ما هو إعراب المصدر في محل نصب في الجملة الاسمية؟",a:["خبر كان","مفعول به","حال","تمييز"],c:0},
+  {q:"ما هو اسم الشاعر التونسي صاحب 'إذا الشعب يوماً أراد الحياة'؟",a:["أبو القاسم الشابي","الطاهر الحداد","محمود المسعدي","الشيخ الطاهر بن عاشور"],c:0},
+  {q:"ما معنى الفعل 'أَبَق'؟",a:["هرب العبد من سيده","صاح بصوت عالٍ","غضب شديداً","انتظر طويلاً"],c:0},
+  {q:"ما هو اسم الحركة الإعرابية للفاعل؟",a:["الضمة","الفتحة","الكسرة","السكون"],c:0},
+  {q:"ما هو جمع كلمة 'شجرة'؟",a:["أشجار","شجرات","شجير","كل ما سبق"],c:0},
+]
+};
+
+/* ═══════════════════════════════════════════
+   FIREBASE CONFIG
+═══════════════════════════════════════════ */
+const FB_CONFIG={
+  apiKey:"AIzaSyBS4XhhG-BffhVr--jG01bMPUcC7edoTsA",
+  authDomain:"buzzer-game-a2383.firebaseapp.com",
+  databaseURL:"https://buzzer-game-a2383-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"buzzer-game-a2383",
+  storageBucket:"buzzer-game-a2383.firebasestorage.app",
+  messagingSenderId:"122815174690",
+  appId:"1:122815174690:web:5e99c08b612595806e527b"
+};
+firebase.initializeApp(FB_CONFIG);
+const DB=firebase.database();
+
+/* ═══════════════════════════════════════════
+   SUBJECTS
+═══════════════════════════════════════════ */
+const SUBJECTS={
+  sport:{name:"رياضة",icon:"⚽",color:"#34d399"},
+  history:{name:"تاريخ",icon:"📜",color:"#f5c842"},
+  geo:{name:"جغرافيا",icon:"🌍",color:"#4f8ef7"},
+  science:{name:"علوم",icon:"🔬",color:"#a78bfa"},
+  culture:{name:"ثقافة عامة",icon:"📚",color:"#fb923c"},
+  tech:{name:"تكنولوجيا",icon:"💻",color:"#60a5fa"},
+  cinema:{name:"أفلام ومسلسلات",icon:"🎬",color:"#f472b6"},
+  islam:{name:"إسلاميات",icon:"☪️",color:"#34d399"},
+  arabic:{name:"لغة عربية",icon:"✍️",color:"#fbbf24"}
+};
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+const COLORS=["#4f8ef7","#34d399","#f5c842","#fb923c","#a78bfa","#f472b6","#60cdff","#f87171"];
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let G={
+  myId:null, myName:'',
+  roomId:null, isHost:false,
+  players:{}, questions:[], cur:0,
+  settings:{goal:10,buzzTime:5},
+  selSubjects:['sport','history','geo','science','culture','tech','cinema','islam','arabic'],
+  usedLocalIds:new Set(),
+  _hostId:null,
+  _disconnectedNotified:{},
+  _disconnectedNotified:{},
+  _listeners:[],
+  wpnTimeLeft:0, wpnTimerInt:null, timerInt:null
+};
+let _prevScores={};
+
+/* ═══════════════════════════════════════════
+   FIREBASE HELPERS
+═══════════════════════════════════════════ */
+function roomRef(path){ return DB.ref(`rooms/${G.roomId}${path?'/'+path:''}`); }
+const _fbListeners=[];
+function fbOn(path,cb){
+  const r=roomRef(path);
+  r.on('value',snap=>cb(snap.val()));
+  _fbListeners.push(r);
+}
+function fbOff(){ _fbListeners.forEach(r=>r.off('value')); _fbListeners.length=0; }
+function fbSet(path,val){ return roomRef(path).set(val); }
+function fbUpdate(obj){ return roomRef('').update(obj); }
+function fbGet(path){ return roomRef(path).once('value').then(s=>s.val()); }
+function fbTs(){ return firebase.database.ServerValue.TIMESTAMP; }
+function genId(){ return Math.random().toString(36).substr(2,9); }
+function genCode(){ return Math.random().toString(36).substr(2,4).toUpperCase(); }
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+
+/* ═══════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function notif(msg,type='info'){
+  document.querySelectorAll('.notif').forEach(n=>n.remove());
+  const n=document.createElement('div');
+  n.className=`notif ${type}`; n.textContent=msg;
+  document.body.appendChild(n);
+  setTimeout(()=>n.remove(),2800);
+}
+
+/* ═══════════════════════════════════════════
+   SUBJECT GRID
+═══════════════════════════════════════════ */
+function initSubjectGrid(gridId){
+  const g=document.getElementById(gridId); if(!g) return;
+  g.innerHTML='';
+  Object.entries(SUBJECTS).forEach(([k,v])=>{
+    const c=document.createElement('div');
+    c.className='subj-card'+(G.selSubjects.includes(k)?' on':'');
+    c.innerHTML=`<div class="subj-icon">${v.icon}</div><div class="subj-name">${v.name}</div>`;
+    c.onclick=()=>{
+      const i=G.selSubjects.indexOf(k);
+      if(i>=0){ if(G.selSubjects.length>1){G.selSubjects.splice(i,1);c.classList.remove('on');} }
+      else{ G.selSubjects.push(k);c.classList.add('on'); }
+    };
+    g.appendChild(c);
+  });
+}
+
+const _pillVals={goal:10,buzz:10}; // default buzz 10s
+function selectPill(groupId,el,val,key){
+  document.querySelectorAll(`#${groupId} .pill`).forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  _pillVals[key]=val;
+}
+
+/* ═══════════════════════════════════════════
+   FLOW MODALS
+═══════════════════════════════════════════ */
+function showFlow(type){
+  const id='flow-'+type;
+  document.getElementById(id).style.display='flex';
+  // Pre-fill name from localStorage
+  const saved=localStorage.getItem('buzzer_myName')||'';
+  const inp=document.getElementById(type==='create'?'inp-name-create':'inp-name-join');
+  if(inp&&saved) inp.value=saved;
+  if(inp) setTimeout(()=>inp.focus(),300);
+}
+function hideFlow(){
+  document.getElementById('flow-create').style.display='none';
+  document.getElementById('flow-join').style.display='none';
+}
+
+function _setBtnLoading(btnId,loading,originalText){
+  const btn=document.getElementById(btnId);
+  if(!btn) return;
+  if(loading){
+    btn.dataset.orig=btn.textContent;
+    btn.textContent='';
+    btn.classList.add('btn-loading');
+  } else {
+    btn.classList.remove('btn-loading');
+    btn.textContent=originalText||btn.dataset.orig||'';
+  }
+}
+
+function _getAndSaveName(inputId){
+  const n=document.getElementById(inputId)?.value.trim();
+  if(!n){notif('Please enter your name first 😊','info');return null;}
+  G.myName=n;
+  if(!G.myId){
+    G.myId=localStorage.getItem('buzzer_myId')||genId();
+    localStorage.setItem('buzzer_myId',G.myId);
+  }
+  localStorage.setItem('buzzer_myName',n);
+  return n;
+}
+
+/* ═══════════════════════════════════════════
+   HOME / JOIN / CREATE
+═══════════════════════════════════════════ */
+function createRoom(){
+  if(!_getAndSaveName('inp-name-create')) return;
+  _setBtnLoading('btn-create-room',true);
+  G.roomId=genCode(); G.isHost=true;
+  G.settings={goal:_pillVals.goal||10, buzzTime:_pillVals.buzz||10};
+  G.questions=buildLocalPool();
+
+  const me={name:G.myName,score:0,color:COLORS[0],weaponUsed:false,connected:true};
+  DB.ref(`rooms/${G.roomId}`).set({
+    host:G.myId, status:'lobby',
+    settings:G.settings, subjects:G.selSubjects,
+    questions:G.questions.map(q=>({q:q.q,a:q.a,c:q.c,subject:q.subject})),
+    cur:0,
+    players:{[G.myId]:me},
+    bs:{buzzer:null,phase:'buzz',qAttempts:{},blocked:[]},
+    ev:null
+  }).then(()=>{
+    DB.ref(`rooms/${G.roomId}/players/${G.myId}/connected`).onDisconnect().set(false);
+    _setBtnLoading('btn-create-room',false,'✨ Create Room');
+    hideFlow();
+    openLobby();
+    listenRoom();
+  }).catch(()=>{
+    _setBtnLoading('btn-create-room',false,'✨ Create Room');
+    notif('Failed to create room, try again','ko');
+  });
+}
+
+async function joinRoom(){
+  if(!_getAndSaveName('inp-name-join')) return;
+  const code=document.getElementById('inp-code').value.trim().toUpperCase();
+  if(!code||code.length<3){notif('Enter a valid code','info');return;}
+  _setBtnLoading('btn-join-room',true);
+
+  try{
+    const snap=await DB.ref(`rooms/${code}`).once('value');
+    if(!snap.exists()){
+      _setBtnLoading('btn-join-room',false,'Join Now 🚀');
+      notif('Room not found ❌','ko');return;
+    }
+    const room=snap.val();
+    G.roomId=code; G.isHost=false;
+
+    const existingPlayer=room.players?.[G.myId];
+    if(existingPlayer){
+      await DB.ref(`rooms/${G.roomId}/players/${G.myId}/connected`).set(true);
+      notif(`Welcome back ${existingPlayer.name}! Score: ${existingPlayer.score} pts 🎉`,'info');
+    } else {
+      const colorIdx=Object.keys(room.players||{}).length%COLORS.length;
+      const me={name:G.myName,score:0,color:COLORS[colorIdx],weaponUsed:false,connected:true};
+      await DB.ref(`rooms/${G.roomId}/players/${G.myId}`).set(me);
+    }
+    DB.ref(`rooms/${G.roomId}/players/${G.myId}/connected`).onDisconnect().set(false);
+
+    G.settings=room.settings||G.settings;
+    G.selSubjects=room.subjects||G.selSubjects;
+    G.questions=(room.questions||[]).map(q=>({...q}));
+
+    _setBtnLoading('btn-join-room',false,'Join Now 🚀');
+    hideFlow();
+
+    if(room.status==='playing'){
+      if(!existingPlayer) notif('Joined mid-game! Score starts at 0 🎮','info');
+      _lastStatus=''; _lastCur=-1; _lastPhase='';
+      listenRoom();
+    } else if(room.status==='finished'){
+      if(!existingPlayer) notif('Joined! Waiting for next round... 🎮','info');
+      openLobby(); listenRoom();
+    } else {
+      openLobby(); listenRoom();
+      if(!existingPlayer) notif('Joined! 🎉','info');
+    }
+  } catch(e){
+    _setBtnLoading('btn-join-room',false,'Join Now 🚀');
+    notif('Connection error, try again','ko');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   LOBBY
+═══════════════════════════════════════════ */
+function openLobby(){
+  document.getElementById('lob-code').textContent=G.roomId;
+  document.getElementById('lob-subjects').textContent=
+    G.selSubjects.map(s=>SUBJECTS[s]?.icon+' '+SUBJECTS[s]?.name).join(' · ');
+  document.getElementById('lob-start-btn').style.display=G.isHost?'flex':'none';
+  document.getElementById('lob-bot-btn').style.display=G.isHost?'block':'none';
+  document.getElementById('lob-msg').textContent=G.isHost
+    ?'Press "Start Game" when everyone is ready'
+    :'Waiting for the host...';
+  show('s-lobby');
+}
+
+function renderLobbyPlayers(players){
+  document.getElementById('lob-players').innerHTML=
+    Object.entries(players||{}).map(([id,p])=>`
+      <div class="p-row" style="direction:ltr">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div class="av" style="background:${p.color}22;color:${p.color}">${p.name[0]}</div>
+          <span style="font-size:14px;font-weight:600">${p.name}</span>
+          ${id===G.myId?'<span class="chip chip-cyan">You</span>':''}
+          ${id===G._hostId?'<span class="chip chip-sun">Host</span>':''}
+          ${p.isBot?'<span class="chip" style="background:rgba(124,58,237,.12);color:var(--violet);font-size:10px">Bot</span>':''}
+        </div>
+        <span class="chip chip-mint" style="font-size:11px">Ready ✓</span>
+      </div>`).join('');
+}
+
+function addBot(){
+  const BOTS=["Ibn Sina 🤖","Al-Farabi 🤖","Al-Khawarizmi 🤖","Al-Razi 🤖","Al-Biruni 🤖"];
+  const idx=Object.keys(G.players).length;
+  const botId='bot_'+genId();
+  const bot={name:BOTS[idx%BOTS.length],score:0,color:COLORS[idx%COLORS.length],weaponUsed:false,isBot:true,connected:true};
+  DB.ref(`rooms/${G.roomId}/players/${botId}`).set(bot);
+  notif(`${bot.name} joined!`,'info');
+}
+
+function startGame(){
+  if(Object.keys(G.players).length<2){notif('Need at least 2 players','info');return;}
+  const updates={};
+  Object.keys(G.players).forEach(id=>{
+    updates[`players/${id}/score`]=0;
+    updates[`players/${id}/weaponUsed`]=false;
+  });
+  updates.status='countdown'; // trigger countdown on all clients
+  updates.cur=0;
+  updates.bs={buzzer:null,phase:'buzz',qAttempts:{},blocked:[]};
+  updates.ev=null;
+  fbUpdate(updates).then(()=>{
+    // After 4s (3-2-1-GO), switch to playing
+    setTimeout(()=>{
+      fbUpdate({status:'playing'});
+    }, 4000);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   ROOM LISTENER — single source of truth
+═══════════════════════════════════════════ */
+let _lastStatus='', _lastCur=-1, _lastPhase='', _lastBuzzer=null, _lastBlockedStr='', _resolvedForQ=-1;
+let _hostTimer=null; // single timer on host
+
+function handleRoomUpdate(room){
+  if(!room) return;
+
+  // Sync local state
+  G._hostId=room.host;
+  G.isHost=(room.host===G.myId);
+  G.players=room.players||{};
+  G.settings=room.settings||G.settings;
+  if(room.questions&&room.questions.length>0) G.questions=room.questions;
+
+  // ── DISCONNECT HANDLING ──
+  // Notify when someone leaves
+  Object.entries(G.players).forEach(([id,p])=>{
+    if(p.connected===false){
+      if(!G._disconnectedNotified[id]){
+        G._disconnectedNotified[id]=true;
+        if(id!==G.myId) notif(`${p.name} left the game 👋`,'info');
+      }
+    } else {
+      // Re-connected — clear notification flag
+      delete G._disconnectedNotified[id];
+    }
+  });
+
+  // Host promotion: if current host disconnected, first connected player takes over
+  if(room.host && G.players[room.host]?.connected===false && room.status==='playing'){
+    const connected=Object.entries(G.players)
+      .filter(([id,p])=>p.connected!==false)
+      .sort((a,b)=>a[0].localeCompare(b[0])); // stable order
+    if(connected.length>0 && connected[0][0]===G.myId && !G.isHost){
+      // I'm now the new host
+      G.isHost=true;
+      DB.ref(`rooms/${G.roomId}/host`).set(G.myId);
+      notif('You are now the host 👑','info');
+      // Resume host duties for current game state
+      const bs=room.bs||{};
+      const cur=room.cur||0;
+      if(bs.phase==='buzz' && !bs.buzzer) startHostBuzzTimer(cur);
+      else if(bs.phase==='answer' && bs.buzzer) startHostAnswerTimer(bs.buzzer);
+    }
+  }
+
+  // ── LOBBY ──
+  if(room.status==='lobby'){
+    renderLobbyPlayers(G.players);
+    if(_lastStatus==='playing'||_lastStatus==='finished'){
+      _lastStatus='lobby';
+      openLobby();
+    }
+    return;
+  }
+
+  // ── COUNTDOWN ──
+  if(room.status==='countdown' && _lastStatus!=='countdown'){
+    _lastStatus='countdown';
+    showCountdown();
+    return;
+  }
+  if(room.status==='countdown') return; // stay on countdown screen
+
+  // ── WIN ──
+  if(room.status==='finished'&&_lastStatus!=='finished'){
+    _lastStatus='finished';
+    stopAllTimers();
+    closeAllOverlays();
+    if(room.winner===G.myId && navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+    playSound('win');
+    showWinScreen(room.winner, room.players);
+    return;
+  }
+
+  // ── PLAYING ──
+  if(room.status!=='playing') return;
+
+  // First time entering game screen
+  if(_lastStatus!=='playing'){
+    _lastStatus='playing';
+    _prevScores={};
+    Object.keys(G.players).forEach(id=>{ _prevScores[id]=0; });
+    show('s-game');
+    closeAllOverlays();
+  }
+
+  const cur=room.cur||0;
+  const bs=room.bs||{};
+  const phase=bs.phase||'buzz';
+  const buzzer=bs.buzzer||null;
+  const blocked=bs.blocked||[];
+  const qAttempts=bs.qAttempts||{};
+
+  G.cur=cur;
+
+  // ── NEW QUESTION ──
+  if(cur!==_lastCur){
+    _lastCur=cur;
+    _lastPhase='';
+    _lastBuzzer=null;
+    _lastBlockedStr='';
+    _resolvedForQ=-1; // reset resolve guard
+    stopAllTimers();
+    closeAllOverlays();
+    // Always close scoreboard when a new question arrives
+    document.getElementById('qscore-overlay').style.display='none';
+    loadQuestionUI(cur);
+    if(G.isHost){
+      startHostBuzzTimer(cur);
+      scheduleBots(cur);
+    }
+    renderScoreboard(G.players,null,G.settings,{},[]); 
+    updateMyScoreHeader();
+    return;
+  }
+
+  // ── PHASE CHANGE ──
+  if(phase===_lastPhase && buzzer===_lastBuzzer) {
+    // No phase change — just update scoreboard silently
+    renderScoreboard(G.players,buzzer,G.settings,qAttempts,blocked);
+    updateMyScoreHeader();
+    // Still check if blocked list changed (non-host answered wrong)
+    if(G.isHost && phase==='answer' && blocked.length>0){
+      const curBlocked=JSON.stringify([...blocked].sort());
+      if(curBlocked!==_lastBlockedStr){
+        _lastBlockedStr=curBlocked;
+        hostCheckAllBlocked(blocked);
+      }
+    }
+    return;
+  }
+  _lastPhase=phase;
+  _lastBuzzer=buzzer;
+
+  renderScoreboard(G.players,buzzer,G.settings,qAttempts,blocked);
+  updateMyScoreHeader();
+
+  if(phase==='buzz'){
+    closeAllOverlays();
+    stopAllTimers();
+    showBuzzPhase(blocked,qAttempts);
+    if(G.isHost) startHostBuzzTimer(cur);
+
+  } else if(phase==='answer'){
+    stopBuzzTimer();
+    // If buzzer disconnected, host reopens immediately
+    if(G.isHost && buzzer && G.players[buzzer]?.connected===false){
+      setTimeout(()=>hostReopenBuzz(), 300);
+      return;
+    }
+    showAnswerPhase(buzzer, qAttempts, blocked);
+    if(G.isHost) startHostAnswerTimer(buzzer);
+
+  } else if(phase==='timeout_reveal'){
+    stopAllTimers();
+    stopProgressBar();
+    stopTick();
+    playSound('timeout');
+    setPhase('buzz',"⏰ Time's up! No one buzzed...");
+    // Make answer area visible and hide buzzer so the correct answer shows
+    document.getElementById('g-buzz-area').style.display='none';
+    document.getElementById('g-answer-area').style.display='block';
+    document.getElementById('g-ans-opts').style.display='none';
+    document.getElementById('g-wait-ans').style.display='none';
+    // Hide the ring timer
+    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
+    if(ringWrap) ringWrap.style.display='none';
+    revealCorrectAnswerUI(cur);
+
+  } else if(phase==='scoreboard'){
+    stopAllTimers();
+    stopProgressBar();
+    stopTick();
+    showScoreboardOverlay();
+
+  } else if(phase==='weapon'){
+    stopAllTimers();
+    if(buzzer===G.myId){
+      showWeaponOverlay();
+    } else {
+      setPhase('answer',`${G.players[buzzer]?.name||'?'} is choosing weapon... ⚔️`);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   COUNTDOWN
+═══════════════════════════════════════════ */
+function showCountdown(){
+  const ov=document.getElementById('countdown-overlay');
+  const num=document.getElementById('countdown-number');
+  const lbl=document.getElementById('countdown-label');
+  ov.style.display='flex';
+
+  const steps=[
+    {n:'3', color:'#ff4d4d', label:'Get ready...'},
+    {n:'2', color:'#ffb800', label:'Get ready...'},
+    {n:'1', color:'#00c896', label:'Get ready...'},
+    {n:'GO!', color:'#7c3aed', label:'First to buzz wins! 🔔'}
+  ];
+
+  let i=0;
+  function tick(){
+    const s=steps[i];
+    num.textContent=s.n;
+    num.style.cssText=`position:relative;z-index:2;font-family:var(--fe);font-size:${s.n==='GO!'?'80':'140'}px;font-weight:700;line-height:1;text-align:center;direction:ltr;
+      background:linear-gradient(135deg,${s.color},${s.color}aa);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      filter:drop-shadow(0 4px 20px ${s.color}44);
+      animation:countPop .35s cubic-bezier(.34,1.8,.64,1)`;
+    lbl.textContent=s.label;
+    playSound(s.n==='GO!'?'correct':'tick_fast');
+    if(navigator.vibrate) navigator.vibrate(s.n==='GO!'?[100,50,200]:[60]);
+    i++;
+    if(i<steps.length) setTimeout(tick,1000);
+    else setTimeout(()=>{ ov.style.display='none'; },800);
+  }
+  tick();
+}
+
+/* ═══════════════════════════════════════════
+   CLOSE ALL OVERLAYS HELPER
+═══════════════════════════════════════════ */
+function closeAllOverlays(){
+  ['qscore-overlay','answering-overlay'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.style.display='none'; el.classList&&el.classList.remove('visible'); }
+  });
+  document.getElementById('answering-overlay')?.classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════
+   HOST TIMERS — only the host runs these
+═══════════════════════════════════════════ */
+let _buzzTimerQ=-1; // which question the buzz timer is for
+
+function startHostBuzzTimer(cur){
+  if(!G.isHost) return;
+  if(_buzzTimerQ===cur) return; // already running for this question
+  _buzzTimerQ=cur;
+  if(_hostTimer) clearTimeout(_hostTimer);
+  _hostTimer=setTimeout(()=>{
+    _hostTimer=null;
+    // Verify still same question and still in buzz phase
+    const bs=G._lastBuzzState||{};
+    if(G.cur!==cur) return;
+    if(bs.phase!=='buzz') return;
+    if(bs.buzzer) return;
+    // Nobody buzzed — show answer then advance
+    fbUpdate({'bs/phase':'timeout_reveal','ev':{type:'timeout',ts:fbTs()}})
+      .then(()=>setTimeout(()=>hostAdvanceQuestion(), 2200));
+  }, G.settings.buzzTime*1000);
+}
+
+function startHostAnswerTimer(buzzerId){
+  if(!G.isHost) return;
+  if(_hostTimer) clearTimeout(_hostTimer);
+  _hostTimer=setTimeout(()=>{
+    _hostTimer=null;
+    const bs=G._lastBuzzState||{};
+    if(bs.buzzer!==buzzerId) return;
+    if(bs.phase!=='answer') return;
+    const p=G.players[buzzerId];
+    if(!p) return;
+    if(p.isBot){
+      runBotAnswer(buzzerId, bs);
+    } else if(p.connected===false){
+      // Disconnected mid-answer — just reopen
+      hostReopenBuzz();
+    } else {
+      // Human timed out — penalize and block
+      const newScore=(p.score||0)-1;
+      const blocked=[...new Set([...(bs.blocked||[]),buzzerId])];
+      fbUpdate({[`players/${buzzerId}/score`]:newScore,'bs/blocked':blocked})
+        .then(()=>hostCheckAllBlocked(blocked));
+    }
+  }, 11000); // 10s + 1s grace
+}
+
+function stopBuzzTimer(){
+  _buzzTimerQ=-1;
+  if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null;}
+}
+
+function stopAllTimers(){
+  _buzzTimerQ=-1;
+  if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null;}
+  stopTick(); stopProgressBar(); stopRingTimer(); stopOverlayTimer();
+}
+
+// Keep local copy of buzzState for transaction
+let _bsLocal={};
+function listenBuzzState(){
+  DB.ref(`rooms/${G.roomId}/bs`).on('value',snap=>{_bsLocal=snap.val()||{};});
+}
+// Expose as G._lastBuzzState for compat
+Object.defineProperty(G,'_lastBuzzState',{get:()=>_bsLocal,configurable:true});
+
+/* ═══════════════════════════════════════════
+   GAME UI
+═══════════════════════════════════════════ */
+function loadQuestionUI(cur){
+  const q=G.questions[cur];
+  if(!q) return;
+  document.getElementById('g-qnum').textContent=`Q${cur+1}`;
+  const subj=SUBJECTS[q.subject];
+  document.getElementById('g-subj').textContent=subj?`${subj.icon} ${subj.name}`:'';
+  document.getElementById('g-question').textContent=q.q;
+  document.getElementById('g-buzz-area').style.display='block';
+  document.getElementById('g-answer-area').style.display='none';
+  document.getElementById('g-correct-reveal').style.display='none';
+  document.getElementById('answering-overlay').classList.remove('visible');
+  document.getElementById('qscore-overlay').style.display='none';
+  // Reset ring timer wrapper visibility (may have been hidden during timeout_reveal)
+  const ringWrap=document.querySelector('#g-answer-area > div:first-child');
+  if(ringWrap) ringWrap.style.display='';
+  const bzBtn=document.getElementById('g-buzzer');
+  bzBtn.disabled=false; bzBtn.className='buzzer-btn';
+  setPhase('buzz','Press the Buzzer! 🔔');
+  updateMyAttempts({},{});
+  startProgressBar(G.settings.buzzTime,'buzz');
+  startTick(G.settings.buzzTime);
+  _onProgBarEnd=()=>{
+    stopTick();
+    setPhase('buzz',"⏰ Time's up!");
+    document.getElementById('g-buzzer').disabled=true;
+    // Show correct answer immediately (Firebase timeout_reveal may have latency)
+    document.getElementById('g-buzz-area').style.display='none';
+    document.getElementById('g-answer-area').style.display='block';
+    document.getElementById('g-ans-opts').style.display='none';
+    document.getElementById('g-wait-ans').style.display='none';
+    const ringWrap=document.querySelector('#g-answer-area > div:first-child');
+    if(ringWrap) ringWrap.style.display='none';
+    revealCorrectAnswerUI(cur);
+  };
+}
+
+function showBuzzPhase(blocked, qAttempts){
+  document.getElementById('answering-overlay').classList.remove('visible');
+  document.getElementById('g-buzz-area').style.display='block';
+  document.getElementById('g-answer-area').style.display='none';
+  const myBlocked=blocked.includes(G.myId);
+  const bzBtn=document.getElementById('g-buzzer');
+  bzBtn.disabled=myBlocked;
+  bzBtn.className=myBlocked?'buzzer-btn locked':'buzzer-btn';
+  setPhase('buzz', myBlocked?'You are blocked — wait for others ⛔':'Press the Buzzer! 🔔');
+  updateMyAttempts(qAttempts, blocked);
+  // Restart progress bar for remaining time (approximate — just restart full)
+  startProgressBar(G.settings.buzzTime,'buzz');
+  startTick(G.settings.buzzTime);
+}
+
+function showAnswerPhase(buzzer, qAttempts, blocked){
+  stopProgressBar(); stopTick();
+  const buzzerPlayer=G.players[buzzer];
+  const isMe=buzzer===G.myId;
+  document.getElementById('g-answer-area').style.display='block';
+  document.getElementById('g-buzz-area').style.display='none';
+
+  if(isMe){
+    setPhase('answer','You buzzed! Answer in 10 seconds ⏱');
+    document.getElementById('answering-overlay').classList.remove('visible');
+    const q=G.questions[G.cur];
+    const shuffled=shuffle(q.a.map((ans,i)=>({ans,isCorrect:i===q.c})));
+    document.getElementById('g-ans-opts').innerHTML=shuffled.map(opt=>
+      `<button class="ans-btn" onclick="submitAnswer(this,${opt.isCorrect})">${opt.ans}</button>`
+    ).join('');
+    document.getElementById('g-ans-opts').style.display='grid';
+    document.getElementById('g-wait-ans').style.display='none';
+    startProgressBar(10,'answer'); startRingTimer(10); startTick(10);
+  } else {
+    setPhase('answer',`${buzzerPlayer?.name||'?'} buzzed! ⏳`);
+    document.getElementById('g-ans-opts').style.display='none';
+    document.getElementById('g-wait-ans').style.display='none';
+    // Hide background ring (it's now in the overlay)
+    const bgRing=document.querySelector('#g-answer-area > div:first-child');
+    if(bgRing) bgRing.style.visibility='hidden';
+    // Populate overlay
+    const av=document.getElementById('ans-ov-avatar');
+    av.textContent=(buzzerPlayer?.name||'?')[0].toUpperCase();
+    av.style.background=`${buzzerPlayer?.color||'#7c3aed'}22`;
+    av.style.color=buzzerPlayer?.color||'#7c3aed';
+    document.getElementById('ans-ov-name').textContent=buzzerPlayer?.name||'?';
+    const q=G.questions[G.cur];
+    document.getElementById('ans-ov-choices').innerHTML=shuffle(q.a).map(ans=>
+      `<div class="ans-ov-choice">${ans}</div>`).join('');
+    document.getElementById('answering-overlay').classList.add('visible');
+    // Drive overlay ring
+    startOverlayTimer(10);
+    startProgressBar(10,'answer');
+  }
+  updateMyAttempts(qAttempts, blocked);
+}
+
+function setPhase(type,msg){
+  const el=document.getElementById('g-phase');
+  el.textContent=msg; el.className='phase-box';
+  if(type==='answer') el.classList.add('answer-time');
+}
+
+function updateMyAttempts(qAttempts,blocked){
+  const el=document.getElementById('g-my-attempts');
+  if(Array.isArray(blocked)?blocked.includes(G.myId):false){
+    el.innerHTML='<span style="color:var(--coral);font-weight:700;direction:ltr">⛔ Blocked — wait for others</span>';
+    document.getElementById('g-buzzer').disabled=true;
+    document.getElementById('g-buzzer').className='buzzer-btn locked';
+  } else {
+    const used=(qAttempts&&qAttempts[G.myId])||0;
+    const dots=Array.from({length:3},(_,i)=>
+      `<div class="dot${i<used?' used':''}"></div>`).join('');
+    el.innerHTML=`<div class="attempt-dots" style="justify-content:center;margin-bottom:3px">${dots}</div>`;
+  }
+}
+
+function revealCorrectAnswerUI(cur){
+  const q=G.questions[cur];
+  if(!q) return;
+  document.getElementById('g-correct-answer-text').textContent=q.a[q.c];
+  document.getElementById('g-correct-reveal').style.display='block';
+}
+
+function updateMyScoreHeader(){
+  const me=G.players[G.myId];
+  if(!me) return;
+  const el=document.getElementById('g-myscore');
+  el.textContent=`My Score: ${me.score}`;
+  el.style.color=me.score<0?'var(--coral)':'';
+}
+
+function renderScoreboard(players, buzzer, settings, qAttempts, blocked){
+  const sorted=Object.entries(players||{}).sort((a,b)=>b[1].score-a[1].score);
+  const goal=settings?.goal||10;
+  document.getElementById('g-scoreboard').innerHTML=sorted.map(([id,p],i)=>{
+    const att=(qAttempts&&qAttempts[id])||0;
+    const isBlocked=Array.isArray(blocked)?blocked.includes(id):false;
+    const isMe=id===G.myId;
+    const isAnswering=id===buzzer;
+    const medals=['🥇','🥈','🥉'];
+    const pct=Math.max(0,Math.min(100,(p.score/goal)*100));
+    const sc=p.score<0?'#ff4d4d':p.color;
+    const wpn=p.weaponUsed
+      ?`<span style="font-size:11px;background:rgba(26,10,0,.07);color:rgba(26,10,0,.3);padding:2px 7px;border-radius:20px;border:1px solid rgba(26,10,0,.1)">🗡️ used</span>`
+      :`<span style="font-size:11px;background:rgba(255,77,77,.1);color:var(--coral);padding:2px 7px;border-radius:20px;border:1px solid rgba(255,77,77,.25)">⚔️ ready</span>`;
+    const dots=Array.from({length:3},(_,j)=>
+      `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${j<att?'var(--coral)':'rgba(26,10,0,.12)'};transition:background .2s"></span>`).join('');
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+      background:${isMe?'rgba(255,77,77,.06)':isAnswering?'rgba(0,212,255,.06)':'rgba(255,255,255,.5)'};
+      border-radius:${i===0?'14px 14px 0 0':i===sorted.length-1?'0 0 14px 14px':'0'};
+      border-bottom:${i===sorted.length-1?'none':'1.5px solid rgba(26,10,0,.06)'};
+      opacity:${isBlocked?.4:1};transition:all .3s;direction:ltr">
+      <span style="font-size:16px;width:24px;text-align:center;flex-shrink:0">${medals[i]||i+1}</span>
+      <div style="width:32px;height:32px;border-radius:50%;background:${p.color}22;color:${p.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${p.name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          ${p.name}${isMe?' <span style="font-size:10px;background:var(--cyan);color:#fff;padding:1px 6px;border-radius:10px">You</span>':''}${isAnswering?' ⚡':''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div style="flex:1;height:4px;background:rgba(26,10,0,.07);border-radius:2px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:${p.color};border-radius:2px;transition:width .5s cubic-bezier(.34,1.4,.64,1)"></div>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:${sc};font-family:var(--fe);white-space:nowrap">${p.score}/${goal}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+        ${wpn}
+        <div style="display:flex;gap:3px">${dots}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   PLAYER ACTIONS
+═══════════════════════════════════════════ */
+function pressBuzzer(){
+  const bs=_bsLocal||{};
+  if((bs.phase||'buzz')!=='buzz') return;
+  if(bs.buzzer) return;
+  if((bs.blocked||[]).includes(G.myId)){notif('You are blocked on this question ⛔','ko');return;}
+  stopTick(); playSound('buzz_press');
+  roomRef('bs/buzzer').transaction(cur=>{
+    if(cur!==null) return;
+    return G.myId;
+  }).then(res=>{
+    if(!res.committed) return;
+    const attempts=((bs.qAttempts||{})[G.myId]||0)+1;
+    fbUpdate({
+      'bs/phase':'answer',
+      'bs/buzzer':G.myId,
+      [`bs/qAttempts/${G.myId}`]:attempts,
+      'ev':{type:'buzz',playerId:G.myId,ts:fbTs()}
+    });
+  });
+}
+
+function submitAnswer(btn, isCorrect){
+  stopTick(); stopProgressBar(); stopRingTimer();
+  document.querySelectorAll('.ans-btn').forEach(b=>b.disabled=true);
+  btn.className='ans-btn '+(isCorrect?'correct':'wrong');
+
+  const bs=_bsLocal||{};
+  const blocked=bs.blocked||[];
+
+  if(isCorrect){
+    playSound('correct');
+    revealCorrectAnswerUI(G.cur);
+    const me=G.players[G.myId];
+    if(!me.weaponUsed){
+      // Signal weapon phase
+      fbUpdate({'bs/phase':'weapon','ev':{type:'correct',playerId:G.myId,ts:fbTs()}});
+      // Don't call hostResolveScore here — weapon overlay will handle it after choice
+    } else {
+      const newScore=(me.score||0)+1;
+      // Write score + fire correct event — handleRoomEvents on host will call hostResolveScore
+      fbUpdate({[`players/${G.myId}/score`]:newScore,'ev':{type:'correct',playerId:G.myId,ts:fbTs()}});
+    }
+  } else {
+    playSound('wrong');
+    const newScore=(G.players[G.myId]?.score||0)-1;
+    const newBlocked=[...new Set([...blocked, G.myId])];
+    fbUpdate({
+      [`players/${G.myId}/score`]:newScore,
+      'bs/blocked':newBlocked,
+      'ev':{type:'wrong',playerId:G.myId,ts:fbTs()}
+    });
+    // If I am host, also handle blocking directly (handleRoomEvents won't fire for self wrong)
+    if(G.isHost) setTimeout(()=>hostCheckAllBlocked(newBlocked),300);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   HOST GAME PROGRESSION
+═══════════════════════════════════════════ */
+function hostReopenBuzz(){
+  if(!G.isHost) return;
+  _buzzTimerQ=-1; // reset guard so timer can restart
+  stopBuzzTimer();
+  fbUpdate({'bs/phase':'buzz','bs/buzzer':null})
+    .then(()=>startHostBuzzTimer(G.cur));
+}
+
+function hostCheckAllBlocked(blocked){
+  if(!G.isHost) return;
+  // Only count connected players — disconnected ones don't block the game
+  const connectedPlayers=Object.keys(G.players).filter(id=>G.players[id]?.connected!==false);
+  if(connectedPlayers.length===0){
+    // Everyone left — just advance
+    hostShowScoreboard(()=>hostAdvanceQuestion());
+    return;
+  }
+  if(connectedPlayers.every(id=>blocked.includes(id))){
+    // ALL connected players answered wrong — unblock everyone, reopen buzz
+    fbUpdate({'bs/blocked':[],'bs/buzzer':null,'bs/phase':'buzz'})
+      .then(()=>startHostBuzzTimer(G.cur));
+  } else {
+    // Some connected players haven't answered yet — reopen for unblocked
+    hostReopenBuzz();
+  }
+}
+
+
+function hostResolveScore(playerId, score){
+  if(!G.isHost) return;
+  if(_resolvedForQ===G.cur) return; // already resolved this question
+  _resolvedForQ=G.cur;
+  if(score>=G.settings.goal){
+    fbUpdate({status:'finished',winner:playerId});
+  } else {
+    hostShowScoreboard(()=>hostAdvanceQuestion());
+  }
+}
+
+function hostShowScoreboard(onDone){
+  if(!G.isHost) return;
+  stopBuzzTimer();
+  const scoreboardDuration=3500; // ms shown to all players
+  fbUpdate({'bs/phase':'scoreboard'})
+    .then(()=>setTimeout(()=>onDone&&onDone(), scoreboardDuration));
+}
+
+
+function hostAdvanceQuestion(){
+  if(!G.isHost) return;
+  const next=G.cur+1;
+  fbUpdate({
+    cur:next,
+    bs:{buzzer:null,phase:'buzz',qAttempts:{},blocked:[]},
+    ev:null
+  }).then(()=>{
+    if(next>=G.questions.length-2) generateAIQuestion();
+  });
+}
+
+/* ═══════════════════════════════════════════
+   WEAPON SYSTEM
+═══════════════════════════════════════════ */
+function showWeaponOverlay(){
+  G.wpnTimeLeft=10;
+  document.getElementById('wpn-overlay').style.display='flex';
+  document.getElementById('wpn-phase-choose').style.display='block';
+  document.getElementById('wpn-phase-target').style.display='none';
+  document.getElementById('wpn-countdown').textContent='10';
+  const bar=document.getElementById('wpn-prog-bar');
+  bar.style.transition='none'; bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition='width 10s linear'; bar.style.width='0%';
+  }));
+  if(G.wpnTimerInt) clearInterval(G.wpnTimerInt);
+  G.wpnTimerInt=setInterval(()=>{
+    G.wpnTimeLeft--;
+    document.getElementById('wpn-countdown').textContent=G.wpnTimeLeft;
+    if(G.wpnTimeLeft<=0){ clearInterval(G.wpnTimerInt); weaponTimeout(); }
+  },1000);
+}
+
+function weaponTimeout(){
+  closeWeaponOverlay();
+  const newScore=(G.players[G.myId]?.score||0)+1;
+  // Clear weapon phase + write score + fire correct event
+  fbUpdate({
+    'bs/phase':'answer', // clear weapon phase so host can resolve
+    [`players/${G.myId}/score`]:newScore,
+    'ev':{type:'correct',playerId:G.myId,ts:fbTs()}
+  });
+}
+
+function weaponChoosePoint(){
+  if(G.wpnTimerInt) clearInterval(G.wpnTimerInt);
+  closeWeaponOverlay();
+  const newScore=(G.players[G.myId]?.score||0)+1;
+  fbUpdate({
+    'bs/phase':'answer',
+    [`players/${G.myId}/score`]:newScore,
+    'ev':{type:'correct',playerId:G.myId,ts:fbTs()}
+  });
+}
+
+function weaponChooseAttack(){
+  document.getElementById('wpn-phase-choose').style.display='none';
+  document.getElementById('wpn-phase-target').style.display='block';
+  const targets=Object.entries(G.players).filter(([id])=>id!==G.myId);
+  document.getElementById('wpn-target-list').innerHTML=targets.map(([id,p])=>`
+    <button class="target-btn" onclick="weaponAttack('${id}')">
+      <div class="av" style="background:${p.color}22;color:${p.color};width:30px;height:30px;font-size:13px">${p.name[0]}</div>
+      <span style="flex:1">${p.name}</span>
+      <span style="font-size:13px;font-weight:700;color:${p.color}">${p.score}</span>
+    </button>`).join('')||'<p style="color:var(--ink2);font-size:13px">No other players</p>';
+}
+
+function weaponBackToChoice(){
+  document.getElementById('wpn-phase-choose').style.display='block';
+  document.getElementById('wpn-phase-target').style.display='none';
+}
+
+function weaponAttack(targetId){
+  if(G.wpnTimerInt) clearInterval(G.wpnTimerInt);
+  closeWeaponOverlay();
+  const target=G.players[targetId];
+  if(!target){weaponChoosePoint();return;}
+  const myScore=G.players[G.myId]?.score||0;
+  fbUpdate({
+    'bs/phase':'answer', // clear weapon phase
+    [`players/${G.myId}/weaponUsed`]:true,
+    [`players/${targetId}/score`]:(target.score||0)-1,
+    'ev':{type:'attack',attackerId:G.myId,targetId,ts:fbTs()}
+  });
+  // Show attack animation; host resolves via handleRoomEvents attack handler
+}
+
+function closeWeaponOverlay(){
+  document.getElementById('wpn-overlay').style.display='none';
+  if(G.wpnTimerInt){clearInterval(G.wpnTimerInt);G.wpnTimerInt=null;}
+}
+
+/* ═══════════════════════════════════════════
+   BOT LOGIC (host only)
+═══════════════════════════════════════════ */
+let _botsScheduled={};
+
+function scheduleBots(cur){
+  if(!G.isHost) return;
+  if(_botsScheduled[cur]) return;
+  _botsScheduled[cur]=true;
+
+  Object.entries(G.players).forEach(([id,p])=>{
+    if(!p.isBot) return;
+    const delay=3000+Math.random()*(G.settings.buzzTime*400);
+    setTimeout(()=>{
+      const bs=_bsLocal||{};
+      if(G.cur!==cur) return;
+      if(bs.phase!=='buzz'||bs.buzzer) return;
+      if((bs.blocked||[]).includes(id)) return;
+      // Bot buzzes
+      roomRef('bs/buzzer').transaction(cur=>{
+        if(cur!==null) return;
+        return id;
+      }).then(res=>{
+        if(!res.committed) return;
+        const attempts=((bs.qAttempts||{})[id]||0)+1;
+        fbUpdate({
+          'bs/phase':'answer','bs/buzzer':id,
+          [`bs/qAttempts/${id}`]:attempts,
+          'ev':{type:'buzz',playerId:id,ts:fbTs()}
+        });
+        // Bot answers after random delay
+        setTimeout(()=>runBotAnswer(id,_bsLocal||{}), 2000+Math.random()*4000);
+      });
+    },delay);
+  });
+}
+
+function runBotAnswer(botId,bs){
+  if(!G.isHost) return;
+  if(bs.buzzer!==botId) return;
+  const bot=G.players[botId];
+  if(!bot) return;
+  const isCorrect=Math.random()>0.35;
+  if(isCorrect){
+    revealCorrectAnswerUI(G.cur);
+    const newScore=(bot.score||0)+1;
+    // Bot attack?
+    const doAttack=!bot.weaponUsed&&Math.random()<0.3&&Object.keys(G.players).length>1;
+    if(doAttack){
+      const others=Object.keys(G.players).filter(id=>id!==botId);
+      const tId=others[Math.floor(Math.random()*others.length)];
+      if(G.players[tId]){
+        fbUpdate({
+          [`players/${botId}/score`]:newScore,
+          [`players/${botId}/weaponUsed`]:true,
+          [`players/${tId}/score`]:(G.players[tId].score||0)-1,
+          'ev':{type:'attack',attackerId:botId,targetId:tId,ts:fbTs()}
+        }).then(()=>setTimeout(()=>hostResolveScore(botId,newScore),2800));
+        return;
+      }
+    }
+    fbUpdate({[`players/${botId}/score`]:newScore,'ev':{type:'correct',playerId:botId,ts:fbTs()}})
+      .then(()=>hostResolveScore(botId,newScore));
+  } else {
+    const newScore=(bot.score||0)-1;
+    const blocked=[...new Set([...(bs.blocked||[]),botId])];
+    fbUpdate({[`players/${botId}/score`]:newScore,'bs/blocked':blocked})
+      .then(()=>hostCheckAllBlocked(blocked));
+  }
+}
+
+/* ═══════════════════════════════════════════
+   POST-Q SCOREBOARD (shown via Firebase phase)
+═══════════════════════════════════════════ */
+function showScoreboardOverlay(){
+  const sorted=Object.entries(G.players).sort((a,b)=>b[1].score-a[1].score);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('qscore-title').textContent='📊 Standings after this question';
+  document.getElementById('qscore-list').innerHTML=sorted.map(([id,p],i)=>{
+    const prev=_prevScores[id]??p.score;
+    const delta=p.score-prev;
+    const dHtml=delta>0?`<span class="qscore-delta delta-up">+${delta}</span>`
+      :delta<0?`<span class="qscore-delta delta-down">${delta}</span>`
+      :`<span class="qscore-delta delta-zero">—</span>`;
+    return`<div class="qscore-row" style="animation:rowSlide .4s ease ${i*0.08}s both">
+      <span class="qscore-rank">${medals[i]||i+1}</span>
+      <div class="av" style="background:${p.color}22;color:${p.color};width:28px;height:28px;font-size:12px">${p.name[0]}</div>
+      <span style="font-size:13px;flex:1">${p.name}${id===G.myId?' 👤':''}</span>
+      ${dHtml}
+      <div class="qscore-bar-wrap"><div class="qscore-bar" style="width:${Math.max(0,Math.min(100,(p.score/(G.settings.goal||10))*100))}%;background:${p.color}"></div></div>
+      <span class="qscore-pts" style="color:${p.score<0?'var(--red)':p.color};direction:ltr">${p.score}</span>
+    </div>`;
+  }).join('');
+  Object.entries(G.players).forEach(([id,p])=>{_prevScores[id]=p.score;});
+  const ncd=document.querySelector('.next-countdown');
+  if(ncd) ncd.style.display='none';
+  document.getElementById('qscore-overlay').style.display='flex';
+}
+
+/* ═══════════════════════════════════════════
+   WIN SCREEN
+═══════════════════════════════════════════ */
+function triggerWin(winnerId,players){
+  stopAllTimers(); closeAllOverlays();
+  if(winnerId===G.myId&&navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+  playSound('win');
+  showWinScreen(winnerId,players||G.players);
+}
+
+function showWinScreen(winnerId,players){
+  const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);
+  const winner=winnerId?players[winnerId]:null;
+  const isMe=winnerId===G.myId;
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('win-name').textContent=winner?`${winner.name} wins! 🎉`:'Game Over!';
+  document.getElementById('win-sub').textContent=winner
+    ?(isMe?'Well done! You reached the goal! 🎊':`${winner.name} reached ${G.settings.goal} points first!`)
+    :'Great game everyone!';
+  const top=sorted.slice(0,3);
+  document.getElementById('win-podium').innerHTML=`
+    ${top[1]?`<div class="win-pod-item wp-2"><div class="win-pod-block">${top[1][1].name[0]}</div><div class="win-pod-name">${top[1][1].name}</div><div class="win-pod-score" style="color:var(--ink2)">${top[1][1].score}</div></div>`:'<div class="win-pod-item"></div>'}
+    ${top[0]?`<div class="win-pod-item wp-1"><div class="win-pod-block" style="font-size:26px">${medals[0]}</div><div class="win-pod-name">${top[0][1].name}</div><div class="win-pod-score" style="color:var(--sun)">${top[0][1].score}</div></div>`:''}
+    ${top[2]?`<div class="win-pod-item wp-3"><div class="win-pod-block">${top[2][1].name[0]}</div><div class="win-pod-name">${top[2][1].name}</div><div class="win-pod-score" style="color:var(--coral);font-size:13px">${top[2][1].score}</div></div>`:'<div class="win-pod-item"></div>'}`;
+  document.getElementById('win-final-list').innerHTML=sorted.map(([id,p],i)=>`
+    <div class="win-row" style="animation-delay:${i*0.1}s;direction:ltr">
+      <span style="font-size:18px;width:28px;text-align:center">${medals[i]||i+1}</span>
+      <div class="av" style="background:${p.color}22;color:${p.color}">${p.name[0]}</div>
+      <span style="font-size:14px;flex:1">${p.name}${id===G.myId?' (You)':''}</span>
+      <span style="font-size:17px;font-weight:700;color:${p.score<0?'var(--coral)':p.color};direction:ltr">${p.score} pts</span>
+    </div>`).join('');
+  document.getElementById('win-host-ctrl').style.display=G.isHost?'block':'none';
+  document.getElementById('win-guest-ctrl').style.display=G.isHost?'none':'block';
+  if(G.isHost) buildReplaySubjectGrid();
+  document.getElementById('win-overlay').style.display='flex';
+  launchConfetti();
+}
+
+function buildReplaySubjectGrid(){
+  const g=document.getElementById('replay-subj-grid'); g.innerHTML='';
+  Object.entries(SUBJECTS).forEach(([k,v])=>{
+    const c=document.createElement('div');
+    c.className='replay-subj'+(G.selSubjects.includes(k)?' on':'');
+    c.innerHTML=`<div class="rs-icon">${v.icon}</div><div class="rs-name">${v.name}</div>`;
+    c.onclick=()=>{
+      const i=G.selSubjects.indexOf(k);
+      if(i>=0){if(G.selSubjects.length>1){G.selSubjects.splice(i,1);c.classList.remove('on');}}
+      else{G.selSubjects.push(k);c.classList.add('on');}
+    };
+    g.appendChild(c);
+  });
+}
+
+function hostRestart(){
+  document.getElementById('win-overlay').style.display='none';
+  stopConfetti();
+  G.usedLocalIds=new Set();
+  G.questions=buildLocalPool();
+  _botsScheduled={};
+  const updates={
+    status:'lobby', cur:0, winner:null,
+    questions:G.questions.map(q=>({q:q.q,a:q.a,c:q.c,subject:q.subject})),
+    subjects:G.selSubjects,
+    bs:{buzzer:null,phase:'buzz',qAttempts:{},blocked:[]},
+    ev:null
+  };
+  Object.keys(G.players).forEach(id=>{
+    updates[`players/${id}/score`]=0;
+    updates[`players/${id}/weaponUsed`]=false;
+  });
+  fbUpdate(updates).then(()=>{
+    _prevScores={}; _lastStatus=''; _lastCur=-1; _lastPhase='';
+    openLobby();
+  });
+}
+
+function hostGoHome(){
+  document.getElementById('win-overlay').style.display='none';
+  stopConfetti();
+  DB.ref(`rooms/${G.roomId}/players/${G.myId}/connected`).set(false);
+  fbOff();
+  show('s-home');
+}
+
+/* ═══════════════════════════════════════════
+   ATTACK ANIMATION
+═══════════════════════════════════════════ */
+function showAttackAnimation(attackerId,targetId,onDone){
+  const atk=G.players[attackerId]; const tgt=G.players[targetId];
+  if(!atk||!tgt){onDone&&onDone();return;}
+  if(targetId===G.myId&&navigator.vibrate) navigator.vibrate([150,80,150]);
+  playSound('attack');
+  const avFrom=document.getElementById('atk-av-from');
+  const avTo=document.getElementById('atk-av-to');
+  avFrom.style.cssText=`background:${atk.color}22;color:${atk.color};width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900`;
+  avFrom.textContent=atk.name[0];
+  avTo.style.cssText=`background:${tgt.color}22;color:${tgt.color};width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900`;
+  avTo.textContent=tgt.name[0];
+  document.getElementById('atk-name-from').textContent=atk.name+(attackerId===G.myId?' (You)':'');
+  document.getElementById('atk-name-to').textContent=tgt.name+(targetId===G.myId?' (You)':'');
+  document.getElementById('atk-sub').textContent=
+    attackerId===G.myId?`You attacked ${tgt.name}! 💥`
+    :targetId===G.myId?`${atk.name} attacked you! 😱`
+    :`${atk.name} attacked ${tgt.name}! 💥`;
+  const rings=document.getElementById('atk-rings');
+  rings.innerHTML='';
+  [0,0.2,0.4].forEach(d=>{
+    const r=document.createElement('div');
+    r.className='atk-ring'; r.style.cssText=`--rd:.9s;--rl:${d+0.7}s`;
+    rings.appendChild(r);
+  });
+  // Stop ticks and progress bar during attack
+  stopTick(); stopProgressBar(); stopRingTimer();
+  const ov=document.getElementById('attack-overlay');
+  ov.style.pointerEvents='all'; // block interaction
+  const clone=ov.cloneNode(true);
+  clone.style.display='block';
+  clone.style.pointerEvents='all';
+  ov.parentNode.replaceChild(clone,ov);
+  setTimeout(()=>{
+    document.getElementById('attack-overlay').style.display='none';
+    document.getElementById('attack-overlay').style.pointerEvents='none';
+    onDone&&onDone();
+  },2600);
+}
+
+/* ═══════════════════════════════════════════
+   EVENT HANDLER — sounds & animations only
+   (game logic is driven by phase in handleRoomUpdate)
+═══════════════════════════════════════════ */
+function handleRoomEvents(ev){
+  if(!ev) return;
+  const t=ev.type;
+  if(t==='buzz'){
+    playSound('buzz_press');
+  } else if(t==='correct'){
+    playSound('correct');
+    revealCorrectAnswerUI(G.cur);
+    // Host resolves ONLY if not in weapon phase (weapon overlay handles its own resolution)
+    if(G.isHost && ev.playerId && (_bsLocal?.phase!=='weapon')){
+      DB.ref(`rooms/${G.roomId}/players/${ev.playerId}/score`).once('value').then(snap=>{
+        const score=snap.val()??0;
+        hostResolveScore(ev.playerId, score);
+      });
+    }
+  } else if(t==='wrong'){
+    playSound('wrong');
+  } else if(t==='attack'){
+    showAttackAnimation(ev.attackerId,ev.targetId,()=>{
+      if(G.isHost){
+        DB.ref(`rooms/${G.roomId}/players/${ev.attackerId}/score`).once('value').then(snap=>{
+          hostResolveScore(ev.attackerId, snap.val()??0);
+        });
+      }
+    });
+  } else if(t==='timeout'){
+    playSound('timeout');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   QUESTIONS POOL
+═══════════════════════════════════════════ */
+function buildLocalPool(){
+  let pool=[];
+  G.selSubjects.forEach(sub=>{
+    if(LOCAL_Q[sub]) LOCAL_Q[sub].forEach((q,i)=>{
+      const uid=`${sub}_${i}`;
+      if(!G.usedLocalIds.has(uid)) pool.push({...q,subject:sub,_uid:uid});
+    });
+  });
+  return shuffle(pool);
+}
+
+async function generateAIQuestion(){
+  if(!G.isHost) return;
+  const sub=G.selSubjects[Math.floor(Math.random()*G.selSubjects.length)];
+  const subName=SUBJECTS[sub]?.name||sub;
+  const prompt=`أنت مولد أسئلة مسابقات. اصنع سؤالاً واحداً ممتعاً باللغة العربية عن "${subName}".
+أجب فقط بـ JSON بدون أي نص آخر:
+{"q":"السؤال","a":["الجواب الصحيح","خطأ1","خطأ2","خطأ3"],"c":0}`;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:300,
+        messages:[{role:"user",content:prompt}]})
+    });
+    const d=await r.json();
+    const txt=(d.content?.find(c=>c.type==="text")?.text||"").replace(/```json|```/g,"").trim();
+    const q=JSON.parse(txt);
+    if(q.q&&q.a&&q.a.length===4){
+      roomRef('questions').transaction(cur=>[...(cur||[]),{q:q.q,a:q.a,c:q.c,subject:sub}]);
+    }
+  }catch(e){}
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+let _confettiAnim=null;
+const CONFETTI_COLORS=['#f5c842','#4f8ef7','#34d399','#f472b6','#fb923c','#a78bfa','#f87171','#fff'];
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const pieces=Array.from({length:120},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,
+    w:Math.random()*10+5,h:Math.random()*6+4,
+    color:CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+    vx:(Math.random()-.5)*3,vy:Math.random()*4+2,
+    rot:Math.random()*360,vr:(Math.random()-.5)*8
+  }));
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+      if(p.y>canvas.height){p.y=-20;p.x=Math.random()*canvas.width;}
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.globalAlpha=1;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    _confettiAnim=requestAnimationFrame(frame);
+  }
+  frame();
+}
+function stopConfetti(){
+  if(_confettiAnim){cancelAnimationFrame(_confettiAnim);_confettiAnim=null;}
+  const c=document.getElementById('confetti-canvas');
+  if(c) c.getContext('2d').clearRect(0,0,c.width,c.height);
+}
+
+/* ═══════════════════════════════════════════
+   PROGRESS BAR + RING TIMER
+═══════════════════════════════════════════ */
+let _progInterval=null,_progStart=null,_progDuration=null,_onProgBarEnd=null;
+
+function startProgressBar(seconds,colorKey){
+  stopProgressBar();
+  const bar=document.getElementById('g-progbar'); if(!bar) return;
+  const grad=colorKey==='answer'?'linear-gradient(90deg,#7c3aed,#00d4ff)':'linear-gradient(90deg,#ffb800,#ff4d4d)';
+  const glow=colorKey==='answer'?'0 0 10px rgba(124,58,237,.4)':'0 0 10px rgba(255,184,0,.5)';
+  bar.style.cssText=`height:100%;border-radius:4px;width:100%;background:${grad};box-shadow:${glow};transition:none`;
+  _progStart=Date.now(); _progDuration=seconds*1000;
+  _progInterval=setInterval(()=>{
+    const pct=Math.max(0,100-((Date.now()-_progStart)/_progDuration*100));
+    bar.style.width=pct+'%';
+    if(pct<=0){ stopProgressBar(); if(_onProgBarEnd){_onProgBarEnd();_onProgBarEnd=null;} }
+  },50);
+}
+function stopProgressBar(){
+  if(_progInterval){clearInterval(_progInterval);_progInterval=null;}
+  const bar=document.getElementById('g-progbar');
+  if(bar) bar.style.width='0%';
+}
+
+let _ringInterval=null;
+function startRingTimer(seconds){
+  stopRingTimer();
+  const arc=document.getElementById('g-cring-arc'),num=document.getElementById('g-cring-num');
+  if(!arc||!num) return;
+  const circ=163.4; arc.style.strokeDashoffset='0'; num.textContent=seconds;
+  const start=Date.now(),total=seconds*1000;
+  _ringInterval=setInterval(()=>{
+    const elapsed=Date.now()-start;
+    arc.style.strokeDashoffset=(circ*Math.min(1,elapsed/total)).toString();
+    num.textContent=Math.max(0,seconds-Math.floor(elapsed/1000));
+    if(elapsed>=total) stopRingTimer();
+  },50);
+}
+let _ovTimerInterval=null;
+function startOverlayTimer(seconds){
+  stopOverlayTimer();
+  const arc=document.getElementById('ans-ov-arc');
+  const num=document.getElementById('ans-ov-timer');
+  if(!arc||!num) return;
+  const circ=301.6;
+  arc.style.strokeDashoffset='0';
+  num.textContent=`${seconds}s`;
+  const start=Date.now(),total=seconds*1000;
+  _ovTimerInterval=setInterval(()=>{
+    const elapsed=Date.now()-start;
+    const pct=Math.min(1,elapsed/total);
+    arc.style.strokeDashoffset=(circ*pct).toFixed(2);
+    const rem=Math.max(0,seconds-Math.floor(elapsed/1000));
+    num.textContent=`${rem}s`;
+    if(elapsed>=total) stopOverlayTimer();
+  },50);
+}
+function stopOverlayTimer(){
+  if(_ovTimerInterval){clearInterval(_ovTimerInterval);_ovTimerInterval=null;}
+  // Restore bg ring visibility
+  const bgRing=document.querySelector('#g-answer-area > div:first-child');
+  if(bgRing) bgRing.style.visibility='';
+}
+
+/* ═══════════════════════════════════════════
+   SOUND ENGINE
+═══════════════════════════════════════════ */
+let _actx=null,_tickInterval=null;
+function getACtx(){
+  if(!_actx) _actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_actx.state==='suspended') _actx.resume();
+  return _actx;
+}
+function playTone(freq,type,duration,vol,t0,fade){
+  try{
+    const ctx=getACtx(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type=type||'sine'; osc.frequency.setValueAtTime(freq,t0||ctx.currentTime);
+    gain.gain.setValueAtTime(vol||0.3,t0||ctx.currentTime);
+    if(fade) gain.gain.exponentialRampToValueAtTime(0.001,(t0||ctx.currentTime)+duration);
+    osc.start(t0||ctx.currentTime); osc.stop((t0||ctx.currentTime)+duration);
+  }catch(e){}
+}
+function playSound(type){
+  try{
+    const ctx=getACtx(),now=ctx.currentTime;
+    if(type==='correct') [523,659,784,1047].forEach((f,i)=>playTone(f,'triangle',0.18,0.25,now+i*0.09,true));
+    else if(type==='wrong'){playTone(220,'sawtooth',0.12,0.35,now,true);playTone(180,'sawtooth',0.12,0.3,now+0.1,true);playTone(140,'sawtooth',0.18,0.25,now+0.2,true);}
+    else if(type==='buzz_press'){playTone(900,'square',0.04,0.4,now,true);playTone(1300,'sine',0.1,0.25,now+0.04,true);}
+    else if(type==='attack'){playTone(100,'sawtooth',0.08,0.5,now,true);playTone(60,'sawtooth',0.25,0.6,now+0.06,true);playTone(250,'square',0.1,0.15,now+0.14,true);}
+    else if(type==='win'){const m=[523,523,523,415,523,622,784];m.forEach((f,i)=>playTone(f,'triangle',i===6?0.55:0.15,0.3,now+i*0.16,true));}
+    else if(type==='tick') playTone(1100,'square',0.018,0.07,now,true);
+    else if(type==='tick_fast') playTone(1400,'square',0.022,0.12,now,true);
+    else if(type==='timeout'){playTone(150,'sine',0.3,0.4,now,true);playTone(90,'sine',0.4,0.3,now+0.12,true);}
+  }catch(e){}
+}
+function startTick(s){
+  stopTick();let e=0;
+  _tickInterval=setInterval(()=>{e++;playSound(s-e<=5?'tick_fast':'tick');},1000);
+}
+function stopTick(){if(_tickInterval){clearInterval(_tickInterval);_tickInterval=null;}}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+// Override handleRoomUpdate to also handle events
+const _origHandleRoomUpdate=handleRoomUpdate;
+// We need to watch ev separately for sounds/animations
+function listenRoom(){
+  fbOff();
+  fbOn('',room=>{
+    handleRoomUpdate(room);
+    // Handle events for sounds/animations (separate from game logic)
+    if(room&&room.ev&&room.ev.ts!==_lastEvTs){
+      _lastEvTs=room.ev.ts;
+      handleRoomEvents(room.ev);
+    }
+  });
+  // Listen to buzzState locally for transaction
+  DB.ref(`rooms/${G.roomId}/bs`).on('value',snap=>{_bsLocal=snap.val()||{};});
+}
+let _lastEvTs=null;
+
+// Restore persistent ID from previous session
+G.myId=localStorage.getItem('buzzer_myId')||null;
+
+initSubjectGrid('subj-grid');
+</script>
+</body>
+</html>
