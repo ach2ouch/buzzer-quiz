@@ -1187,9 +1187,6 @@ select option{background:#fff;color:var(--ink)}
       </div>
     </button>
   </div>
-  <div style="text-align:center;margin-top:2rem;direction:ltr">
-    <span style="font-size:12px;color:var(--ink3);font-weight:500;letter-spacing:.3px">made by </span><span style="font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--coral),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.2px">Ach2ouch</span>
-  </div>
 </div>
 
 <!-- CREATE FLOW MODAL -->
@@ -2013,11 +2010,10 @@ let G={
   myId:null, myName:'',
   roomId:null, isHost:false,
   players:{}, questions:[], cur:0,
-  settings:{goal:10,buzzTime:5},
+  settings:{goal:10,buzzTime:10},
   selSubjects:['sport','history','geo','science','culture','tech','cinema','islam','arabic'],
   usedLocalIds:new Set(),
   _hostId:null,
-  _disconnectedNotified:{},
   _disconnectedNotified:{},
   _listeners:[],
   wpnTimeLeft:0, wpnTimerInt:null, timerInt:null
@@ -2136,11 +2132,16 @@ function createRoom(){
   G.settings={goal:_pillVals.goal||10, buzzTime:_pillVals.buzz||10};
   G.questions=buildLocalPool();
 
+  // Store questions as numbered keys (Firebase-safe, preserves order)
+  const qObj={};
+  G.questions.forEach((q,i)=>{ qObj['q'+i]={q:q.q,a:q.a,c:q.c,s:q.subject}; });
+  qObj._n=G.questions.length;
+
   const me={name:G.myName,score:0,color:COLORS[0],weaponUsed:false,connected:true};
   DB.ref(`rooms/${G.roomId}`).set({
     host:G.myId, status:'lobby',
     settings:G.settings, subjects:G.selSubjects,
-    questions:G.questions.map(q=>({q:q.q,a:q.a,c:q.c,subject:q.subject})),
+    questions:qObj,
     cur:0,
     players:{[G.myId]:me},
     bs:{buzzer:null,phase:'buzz',qAttempts:{},blocked:[]},
@@ -2185,7 +2186,18 @@ async function joinRoom(){
 
     G.settings=room.settings||G.settings;
     G.selSubjects=room.subjects||G.selSubjects;
-    G.questions=(room.questions||[]).map(q=>({...q}));
+    // Load questions from Firebase (host stored them as q0,q1,...,_n)
+    if(room.questions && room.questions._n){
+      const n=room.questions._n;
+      const qs=[];
+      for(let i=0;i<n;i++){
+        const q=room.questions['q'+i];
+        if(q) qs.push({q:q.q,a:q.a,c:q.c,subject:q.s});
+      }
+      if(qs.length>0) G.questions=qs;
+    }
+    // Fallback: build locally if Firebase questions not available
+    if(G.questions.length===0) G.questions=buildLocalPool();
 
     _setBtnLoading('btn-join-room',false,'Join Now 🚀');
     hideFlow();
@@ -2279,7 +2291,16 @@ function handleRoomUpdate(room){
   G.isHost=(room.host===G.myId);
   G.players=room.players||{};
   G.settings=room.settings||G.settings;
-  if(room.questions&&room.questions.length>0) G.questions=room.questions;
+  // Load questions from Firebase when not yet loaded (guests, reconnectors)
+  if(G.questions.length===0 && room.questions && room.questions._n){
+    const n=room.questions._n;
+    const qs=[];
+    for(let i=0;i<n;i++){
+      const q=room.questions['q'+i];
+      if(q) qs.push({q:q.q,a:q.a,c:q.c,subject:q.s});
+    }
+    if(qs.length>0) G.questions=qs;
+  }
 
   // ── DISCONNECT HANDLING ──
   // Notify when someone leaves
@@ -2350,8 +2371,12 @@ function handleRoomUpdate(room){
     _lastStatus='playing';
     _prevScores={};
     Object.keys(G.players).forEach(id=>{ _prevScores[id]=0; });
+    // ALWAYS build questions from local pool — guaranteed to work
+    G.questions=buildLocalPool();
     show('s-game');
     closeAllOverlays();
+    // Force load question immediately — don't wait for cur check below
+    _lastCur=-1;
   }
 
   const cur=room.cur||0;
@@ -2552,6 +2577,16 @@ function stopBuzzTimer(){
   if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null;}
 }
 
+function stopRingTimer(){
+  if(_ringInterval){clearInterval(_ringInterval);_ringInterval=null;}
+}
+
+function stopOverlayTimer(){
+  if(_ovTimerInterval){clearInterval(_ovTimerInterval);_ovTimerInterval=null;}
+  const bgRing=document.querySelector('#g-answer-area > div:first-child');
+  if(bgRing) bgRing.style.visibility='';
+}
+
 function stopAllTimers(){
   _buzzTimerQ=-1;
   if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null;}
@@ -2570,8 +2605,15 @@ Object.defineProperty(G,'_lastBuzzState',{get:()=>_bsLocal,configurable:true});
    GAME UI
 ═══════════════════════════════════════════ */
 function loadQuestionUI(cur){
-  const q=G.questions[cur];
-  if(!q) return;
+  // Always try to get question locally first
+  if(!G.questions||G.questions.length===0){
+    G.questions=buildLocalPool();
+  }
+  let q=G.questions[cur]||G.questions[cur%G.questions.length]||G.questions[0];
+  if(!q){
+    document.getElementById('g-question').textContent='Error loading question';
+    return;
+  }
   document.getElementById('g-qnum').textContent=`Q${cur+1}`;
   const subj=SUBJECTS[q.subject];
   document.getElementById('g-subj').textContent=subj?`${subj.icon} ${subj.name}`:'';
@@ -2588,8 +2630,8 @@ function loadQuestionUI(cur){
   bzBtn.disabled=false; bzBtn.className='buzzer-btn';
   setPhase('buzz','Press the Buzzer! 🔔');
   updateMyAttempts({},{});
-  startProgressBar(G.settings.buzzTime,'buzz');
-  startTick(G.settings.buzzTime);
+  startProgressBar(G.settings?.buzzTime||10,'buzz');
+  startTick(G.settings?.buzzTime||10);
   _onProgBarEnd=()=>{
     stopTick();
     setPhase('buzz',"⏰ Time's up!");
