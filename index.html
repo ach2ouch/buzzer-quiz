@@ -1543,8 +1543,8 @@ select option{background:#fff;color:var(--ink)}
       <div class="weapon-btns">
         <button class="w-btn w-btn-point" onclick="weaponChoosePoint()">
           <div style="font-size:24px">✅</div>
-          <div>+1 Point</div>
-          <div style="font-size:11px;opacity:.8">Safe & certain</div>
+          <div id="wpn-point-label">+1 Point</div>
+          <div id="wpn-point-sub" style="font-size:11px;opacity:.8">Safe & certain</div>
         </button>
         <button class="w-btn w-btn-attack" onclick="weaponChooseAttack()">
           <div style="font-size:24px">⚔️</div>
@@ -2761,10 +2761,10 @@ function loadQuestionUI(cur){
   document.getElementById('g-qnum').textContent=`Q${cur+1}`;
   // Golden question every 10th (Q10, Q20...)
   const isGolden=(cur+1)%10===0;
-  const qNumBadge=document.getElementById('g-qnum');
-  qNumBadge.className=isGolden?'g-qnum-badge golden':'g-qnum-badge';
+  document.getElementById('g-qnum').className=isGolden?'g-qnum-badge golden':'g-qnum-badge';
   document.getElementById('g-question').classList.toggle('golden',isGolden);
-  if(isGolden) showGoldenOverlay();
+  // Show golden splash after a brief delay (so closeAllOverlays doesn't wipe it)
+  if(isGolden) setTimeout(()=>showGoldenOverlay(), 100);
   const subj=SUBJECTS[q.subject];
   document.getElementById('g-subj').textContent=subj?`${subj.icon} ${subj.name}`:'';
   document.getElementById('g-question').textContent=q.q;
@@ -3057,10 +3057,13 @@ function hostAdvanceQuestion(){
 ═══════════════════════════════════════════ */
 function showWeaponOverlay(){
   G.wpnTimeLeft=10;
+  const pts=isGoldenQuestion(G.cur)?2:1;
   document.getElementById('wpn-overlay').style.display='flex';
   document.getElementById('wpn-phase-choose').style.display='block';
   document.getElementById('wpn-phase-target').style.display='none';
   document.getElementById('wpn-countdown').textContent='10';
+  document.getElementById('wpn-point-label').textContent=`+${pts} Point${pts>1?'s':''}`;
+  document.getElementById('wpn-point-sub').textContent=pts>1?'🌟 Golden double!':'Safe & certain';
   const bar=document.getElementById('wpn-prog-bar');
   bar.style.transition='none'; bar.style.width='100%';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
