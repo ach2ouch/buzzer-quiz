@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مسابقة البازر ⚡</title>
+<title>Buzzer Quizzz</title>
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -2334,7 +2334,7 @@ async function joinRoom(){
 
     if(room.status==='playing'){
       if(!existingPlayer) notif('Joined mid-game! Score starts at 0 🎮','info');
-      _lastStatus=''; _lastCur=-1; _lastPhase='';
+      _lastStatus='lobby'; _lastCur=-1; _lastPhase='';
       listenRoom();
     } else if(room.status==='finished'){
       if(!existingPlayer) notif('Joined! Waiting for next round... 🎮','info');
@@ -2395,22 +2395,21 @@ function startGame(){
     updates[`players/${id}/score`]=0;
     updates[`players/${id}/weaponUsed`]=false;
   });
-  updates.status='countdown'; // trigger countdown on all clients
+  updates.status='countdown';
+  updates.countdownStart=fbTs(); // server timestamp — ALL clients sync to this
   updates.cur=0;
   updates.bs={buzzer:null,phase:'buzz',qAttempts:{},blocked:[]};
   updates.ev=null;
-  fbUpdate(updates).then(()=>{
-    // After 4s (3-2-1-GO), switch to playing
-    setTimeout(()=>{
-      fbUpdate({status:'playing'});
-    }, 4000);
-  });
+  fbUpdate(updates);
+  // Host also writes status:'playing' at exactly t+4000ms using server time
+  // But we don't use setTimeout — instead ALL clients transition when they detect
+  // countdownStart + 4000ms has elapsed (checked in handleRoomUpdate)
 }
 
 /* ═══════════════════════════════════════════
    ROOM LISTENER — single source of truth
 ═══════════════════════════════════════════ */
-let _lastStatus='', _lastCur=-1, _lastPhase='', _lastBuzzer=null, _lastBlockedStr='', _resolvedForQ=-1;
+let _lastStatus='lobby', _lastCur=-1, _lastPhase='', _lastBuzzer=null, _lastBlockedStr='', _resolvedForQ=-1;
 let _hostTimer=null; // single timer on host
 
 function handleRoomUpdate(room){
@@ -2466,41 +2465,49 @@ function handleRoomUpdate(room){
 
   // ── LOBBY ──
   if(room.status==='lobby'){
-    renderLobbyPlayers(G.players);
-    if(_lastStatus==='playing'||_lastStatus==='finished'){
+    if(_lastStatus!=='lobby'){
       _lastStatus='lobby';
       openLobby();
     }
+    renderLobbyPlayers(G.players);
     return;
   }
 
   // ── COUNTDOWN ──
-  if(room.status==='countdown' && _lastStatus!=='countdown'){
-    _lastStatus='countdown';
-    showCountdown();
+  if(room.status==='countdown'){
+    if(_lastStatus!=='countdown'){
+      _lastStatus='countdown';
+      _prevScores={};
+      Object.keys(G.players).forEach(id=>{ _prevScores[id]=0; });
+      show('s-game');
+      closeAllOverlays();
+      _lastCur=-1;
+      showCountdown(room.countdownStart||Date.now());
+    }
     return;
   }
-  if(room.status==='countdown') return; // stay on countdown screen
 
   // ── WIN ──
-  if(room.status==='finished'&&_lastStatus!=='finished'){
-    _lastStatus='finished';
-    stopAllTimers();
-    closeAllOverlays();
-    if(room.winner===G.myId && navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
-    playSound('win');
-    showWinScreen(room.winner, room.players);
+  if(room.status==='finished'){
+    if(_lastStatus!=='finished'){
+      _lastStatus='finished';
+      stopAllTimers();
+      closeAllOverlays();
+      if(room.winner===G.myId && navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+      playSound('win');
+      showWinScreen(room.winner, room.players);
+    }
     return;
   }
 
   // ── PLAYING ──
   if(room.status!=='playing') return;
 
-  // First time entering game screen
   if(_lastStatus!=='playing'){
     _lastStatus='playing';
     _prevScores={};
     Object.keys(G.players).forEach(id=>{ _prevScores[id]=0; });
+    // Show game screen if not already shown (e.g. countdown already did it)
     show('s-game');
     closeAllOverlays();
     _lastCur=-1;
@@ -2606,24 +2613,24 @@ function handleRoomUpdate(room){
 }
 
 /* ═══════════════════════════════════════════
-   COUNTDOWN
+   COUNTDOWN — synced to server timestamp
 ═══════════════════════════════════════════ */
-function showCountdown(){
+function showCountdown(countdownStart){
   const ov=document.getElementById('countdown-overlay');
   const num=document.getElementById('countdown-number');
   const lbl=document.getElementById('countdown-label');
+  ov.style.opacity='1'; ov.style.transition='';
   ov.style.display='flex';
 
+  const DURATION=4000; // 3-2-1-GO over 4 seconds
   const steps=[
-    {n:'3', color:'#ff4d4d', label:'Get ready...'},
-    {n:'2', color:'#ffb800', label:'Get ready...'},
-    {n:'1', color:'#00c896', label:'Get ready...'},
-    {n:'GO!', color:'#7c3aed', label:'First to buzz wins! 🔔'}
+    {n:'3', color:'#ff4d4d', label:'Get ready...', t:0},
+    {n:'2', color:'#ffb800', label:'Get ready...', t:1000},
+    {n:'1', color:'#00c896', label:'Get ready...', t:2000},
+    {n:'GO!', color:'#7c3aed', label:'First to buzz wins! 🔔', t:3000}
   ];
 
-  let i=0;
-  function tick(){
-    const s=steps[i];
+  function showStep(s){
     num.textContent=s.n;
     num.style.cssText=`position:relative;z-index:2;font-family:var(--fe);font-size:${s.n==='GO!'?'80':'140'}px;font-weight:700;line-height:1;text-align:center;direction:ltr;
       background:linear-gradient(135deg,${s.color},${s.color}aa);
@@ -2633,11 +2640,31 @@ function showCountdown(){
     lbl.textContent=s.label;
     playSound(s.n==='GO!'?'correct':'tick_fast');
     if(navigator.vibrate) navigator.vibrate(s.n==='GO!'?[100,50,200]:[60]);
-    i++;
-    if(i<steps.length) setTimeout(tick,1000);
-    else setTimeout(()=>{ ov.style.display='none'; },800);
   }
-  tick();
+
+  const now=Date.now();
+  const elapsed=countdownStart ? Math.max(0, now-countdownStart) : 0;
+
+  // Schedule each step relative to how much time has already elapsed
+  steps.forEach(s=>{
+    const delay=s.t - elapsed;
+    if(delay<=0){
+      // Already past this step — show immediately if it's the latest past step
+      if(s===steps.filter(x=>x.t-elapsed<=0).slice(-1)[0]) showStep(s);
+    } else {
+      setTimeout(()=>showStep(s), delay);
+    }
+  });
+
+  // Hide overlay at t=4000ms (or sooner if already elapsed)
+  const hideDelay=Math.max(0, DURATION - elapsed);
+  setTimeout(()=>{
+    ov.style.transition='opacity .4s ease';
+    ov.style.opacity='0';
+    setTimeout(()=>{ ov.style.display='none'; ov.style.opacity='1'; ov.style.transition=''; }, 400);
+    // HOST writes status:'playing' at this exact moment
+    if(G.isHost) fbUpdate({status:'playing'});
+  }, hideDelay);
 }
 
 /* ═══════════════════════════════════════════
@@ -3312,7 +3339,7 @@ function hostRestart(){
     updates[`players/${id}/weaponUsed`]=false;
   });
   fbUpdate(updates).then(()=>{
-    _prevScores={}; _lastStatus=''; _lastCur=-1; _lastPhase='';
+    _prevScores={}; _lastStatus='lobby'; _lastCur=-1; _lastPhase='';
     openLobby();
   });
 }
