@@ -2613,7 +2613,8 @@ function handleRoomUpdate(room){
     document.getElementById('g-answer-area').style.display='block';
     document.getElementById('g-ans-opts').style.display='none';
     document.getElementById('g-wait-ans').style.display='none';
-    // Hide the ring timer    revealCorrectAnswerUI(cur);
+    // Hide the ring timer
+    revealCorrectAnswerUI(cur);
 
   } else if(phase==='scoreboard'){
     stopAllTimers();
@@ -2855,7 +2856,8 @@ function loadQuestionUI(cur){
     document.getElementById('g-buzz-area').style.display='none';
     document.getElementById('g-answer-area').style.display='block';
     document.getElementById('g-ans-opts').style.display='none';
-    document.getElementById('g-wait-ans').style.display='none';    revealCorrectAnswerUI(cur);
+    document.getElementById('g-wait-ans').style.display='none';
+    revealCorrectAnswerUI(cur);
   };
 }
 
@@ -2884,7 +2886,8 @@ function showAnswerPhase(buzzer, qAttempts, blocked){
   if(isMe){
     setPhase('answer','You buzzed! Answer in 10 seconds ⏱');
     document.getElementById('answering-overlay').classList.remove('visible');
-    // Hide the ring timer — progress bar is enough    const q=G.questions[G.cur];
+    const q=G.questions[G.cur];
+    if(!q) return;
     const shuffled=shuffle(q.a.map((ans,i)=>({ans,isCorrect:i===q.c})));
     document.getElementById('g-ans-opts').innerHTML=shuffled.map(opt=>
       `<button class="ans-btn" onclick="submitAnswer(this,${opt.isCorrect})">${opt.ans}</button>`
