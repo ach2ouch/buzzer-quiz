@@ -2544,7 +2544,8 @@ function handleRoomUpdate(room){
     _lastPhase='';
     _lastBuzzer=null;
     _lastBlockedStr='';
-    _resolvedForQ=-1; // reset resolve guard
+    _resolvedForQ=-1;
+    _iWonBuzzer=false; // reset for new question
     stopAllTimers();
     closeAllOverlays();
     // Always close scoreboard when a new question arrives
@@ -2587,6 +2588,8 @@ function handleRoomUpdate(room){
   updateMyScoreHeader();
 
   if(phase==='buzz'){
+    // Don't revert to buzz phase if I just won the buzzer (transaction may not have propagated yet)
+    if(_iWonBuzzer) return;
     closeAllOverlays();
     stopAllTimers();
     showBuzzPhase(blocked,qAttempts);
@@ -2767,7 +2770,7 @@ function stopAllTimers(){
 }
 
 // Keep local copy of buzzState for transaction
-let _bsLocal={};
+let _iWonBuzzer=false; // prevents UI revert while transaction propagates
 function listenBuzzState(){
   DB.ref(`rooms/${G.roomId}/bs`).on('value',snap=>{_bsLocal=snap.val()||{};});
 }
@@ -3003,20 +3006,42 @@ function pressBuzzer(){
   const bs=_bsLocal||{};
   if((bs.phase||'buzz')!=='buzz') return;
   if(bs.buzzer) return;
-  if((bs.blocked||[]).includes(G.myId)){notif('You are blocked on this question ⛔','ko');return;}
+  if((bs.blocked||[]).includes(G.myId)){notif('You are blocked ⛔','ko');return;}
+
+  // Disable button immediately to prevent double-click
+  const btn=document.getElementById('g-buzzer');
+  btn.disabled=true;
+
   stopTick(); playSound('buzz_press');
-  roomRef('bs/buzzer').transaction(cur=>{
-    if(cur!==null) return;
-    return G.myId;
+
+  // Single atomic transaction on the ENTIRE bs object — no race condition possible
+  roomRef('bs').transaction(cur=>{
+    if(!cur) return; // no bs yet
+    if(cur.phase!=='buzz') return; // already answered
+    if(cur.buzzer) return; // someone already buzzed
+    if((cur.blocked||[]).includes(G.myId)) return; // I'm blocked
+
+    // I win the buzzer — set everything atomically
+    const attempts=((cur.qAttempts||{})[G.myId]||0)+1;
+    return {
+      ...cur,
+      buzzer: G.myId,
+      phase: 'answer',
+      qAttempts: {...(cur.qAttempts||{}), [G.myId]: attempts}
+    };
   }).then(res=>{
-    if(!res.committed) return;
-    const attempts=((bs.qAttempts||{})[G.myId]||0)+1;
-    fbUpdate({
-      'bs/phase':'answer',
-      'bs/buzzer':G.myId,
-      [`bs/qAttempts/${G.myId}`]:attempts,
-      'ev':{type:'buzz',playerId:G.myId,ts:fbTs()}
-    });
+    if(!res.committed){
+      // Someone else got it — re-enable buzzer
+      btn.disabled=false;
+      btn.className='buzzer-btn';
+      return;
+    }
+    // I won — fire buzz event for sound/animation on all clients
+    _iWonBuzzer=true;
+    fbUpdate({'ev':{type:'buzz',playerId:G.myId,ts:fbTs()}});
+  }).catch(()=>{
+    btn.disabled=false;
+    btn.className='buzzer-btn';
   });
 }
 
